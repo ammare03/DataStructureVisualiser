@@ -1,5 +1,6 @@
 package com.example.datastructurevisualiser;
 
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -8,6 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -117,8 +119,11 @@ public class VisualiseArray {
     // Method to visualize the current state of the array
     private void visualizeArray() {
         visualBox.getChildren().clear(); // Clear existing visual elements
-        for (String value : arrayList) {
-            Rectangle rectangle = new Rectangle(80, 50); // Create a rectangle for each value (larger size)
+        for (int i = 0; i < arrayList.size(); i++) {
+            String value = arrayList.get(i);
+
+            // Create a rectangle for each value
+            Rectangle rectangle = new Rectangle(100, 50); // Size of the rectangle
             rectangle.setFill(Color.web("#D4BEE4")); // Rectangle color
             rectangle.setStroke(Color.web("#3B1E54")); // Border color
             rectangle.setStrokeWidth(2);
@@ -126,12 +131,43 @@ public class VisualiseArray {
             // Create a text element to display the value
             Text valueText = new Text(value);
             valueText.setFill(Color.web("#3B1E54")); // Text color
-            valueText.setFont(Font.font("Verdana", FontWeight.BOLD, 16)); // Text font
+            valueText.setFont(Font.font("Verdana", FontWeight.BOLD, 20)); // Increased text font size
+            valueText.setTextAlignment(javafx.scene.text.TextAlignment.CENTER); // Center alignment
 
-            // Add the rectangle and text to the HBox
-            StackPane stack = new StackPane();
-            stack.getChildren().addAll(rectangle, valueText);
-            visualBox.getChildren().add(stack);
+            // Use a StackPane to center the text over the rectangle
+            StackPane rectangleStack = new StackPane();
+            rectangleStack.getChildren().addAll(rectangle, valueText); // Add rectangle and text to StackPane
+
+            // Create a text element for the index
+            Text indexText = new Text(Integer.toString(i));
+            indexText.setFill(Color.web("#EEEEEE")); // Index text color
+            indexText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14)); // Index font
+
+            // Create a VBox for the rectangle and index
+            VBox vBox = new VBox(5); // Spacing between elements
+            vBox.setAlignment(Pos.CENTER); // Center alignment
+            vBox.getChildren().addAll(rectangleStack, indexText); // Add StackPane and index text to VBox
+
+            // Add the VBox to the visualBox
+            visualBox.getChildren().add(vBox);
+
+            // Create and center the arrow between the rectangle and the next rectangle if not the last element
+            if (i < arrayList.size() - 1) { // Draw arrow only if there's a next element
+                Line arrow = new Line(0, 0, 30, 0); // Adjusted line length
+                arrow.setStroke(Color.web("#EEEEEE")); // Arrow color
+                arrow.setStrokeWidth(2);
+
+                // Position the arrow StackPane above the rectangle
+                StackPane arrowStack = new StackPane();
+                arrowStack.setAlignment(Pos.CENTER); // Center alignment for the arrow
+                arrowStack.getChildren().add(arrow); // Add the arrow to the StackPane
+
+                // Set the arrow's Y position to be right above the rectangle
+                StackPane.setMargin(arrow, new javafx.geometry.Insets(-15, 0, 0, 0)); // Negative margin to position the arrow
+
+                // Add the arrowStack to visualBox
+                visualBox.getChildren().add(arrowStack);
+            }
         }
     }
 }
