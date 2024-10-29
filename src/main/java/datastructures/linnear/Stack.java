@@ -40,11 +40,7 @@ public class Stack<T> implements Iterable<T> {
     private T[] getNulledArray() {
         T[] nulledArray = (T[]) new Object[array.length];
         for (int i = 0; i < array.length; i++) {
-            if (i <= top) {
-                nulledArray[i] = array[i];
-            } else {
-                nulledArray[i] = null;
-            }
+            nulledArray[i] = i <= top ? array[i] : null;
         }
         return nulledArray;
     }

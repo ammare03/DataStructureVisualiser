@@ -1,5 +1,6 @@
 package com.example.datastructurevisualiser;
 
+import datastructures.linnear.CircularQueue;
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
 import javafx.geometry.Pos;
@@ -73,11 +74,11 @@ public class VisualiseStack {
         popButton.setOnAction(e -> {
             try {
                 stack.pop();
+                visualizeStack(); // Update visualization
             } catch (UnderflowException ex) {
                 //temporary, give proper message to user later
                 ex.printStackTrace();
             }
-            visualizeStack(); // Update visualization
         });
 
         // HBox for input and buttons at the bottom
