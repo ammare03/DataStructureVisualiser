@@ -19,8 +19,6 @@ public class VisualiseQueue {
     private Queue queue = new Queue(); // Initialize the Queue instance
     private HBox queueBox = new HBox(10); // HBox for visualizing queue nodes
     private VBox centerQueueBox = new VBox(); // Container to center the queue visualization
-    private Region spacerTop = new Region(); // Spacer for top alignment
-    private Region spacerBottom = new Region(); // Spacer for bottom alignment
 
     public Scene createScene(Stage primaryStage) {
         // Create the title text
@@ -80,8 +78,12 @@ public class VisualiseQueue {
 
         // Event handler for "Dequeue" button
         dequeueButton.setOnAction(e -> {
-            queue.dequeue();
-            visualizeQueue(); // Update visualization
+            if (!queue.isEmpty()) { // Check if the queue is not empty before dequeueing
+                queue.dequeue();
+                visualizeQueue(); // Update visualization
+            } else {
+                System.out.println("Queue is empty. Cannot dequeue.");
+            }
         });
 
         // Input and button layout at the bottom
@@ -90,8 +92,8 @@ public class VisualiseQueue {
         inputBox.setStyle("-fx-alignment: center;");
         mainVBox.getChildren().add(inputBox); // Add the input box to main VBox
 
-        // Create and return scene
-        return new Scene(mainVBox, 1040, 600);
+        // Create and return scene with specified dimensions
+        return new Scene(mainVBox, 1270, 660); // Set window size to 1270x660
     }
 
     // Method to style buttons consistently
@@ -105,7 +107,7 @@ public class VisualiseQueue {
         queueBox.getChildren().clear(); // Clear current queue visualization
 
         // Iterate over queue values and add visual nodes
-        Queue.Node current = queue.getFirst();
+        Queue.Node current = queue.getFirst(); // Get the first node of the queue
         while (current != null) {
             int value = current.value;
 
@@ -122,18 +124,18 @@ public class VisualiseQueue {
 
             // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane(rect, valueText);
-            queueBox.getChildren().add(stackPane);
+            queueBox.getChildren().add(stackPane); // Add the stack pane to the queue box
 
             // Add arrow between nodes if not the last node
             if (current.next != null) {
-                Line arrow = new Line(0, 0, 30, 0); // Extend line to connect nodes
+                Line arrow = new Line(0, 25, 30, 25); // Extend line to connect nodes
                 arrow.setStroke(Color.web("#EEEEEE"));
                 arrow.setStrokeWidth(2);
 
                 // Center arrow vertically with the rectangle
                 StackPane arrowPane = new StackPane(arrow);
                 arrowPane.setAlignment(Pos.CENTER);  // Center alignment in the HBox
-                queueBox.getChildren().add(arrowPane);
+                queueBox.getChildren().add(arrowPane); // Add the arrow to the queue box
             }
 
             // Move to the next node in the queue

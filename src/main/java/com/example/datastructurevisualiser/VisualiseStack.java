@@ -1,7 +1,5 @@
 package com.example.datastructurevisualiser;
 
-import exceptions.OverflowException;
-import exceptions.UnderflowException;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -16,12 +14,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import datastructures.linnear.Stack;
+import datastructures.Stack;
 
 public class VisualiseStack {
 
-    private Stack<Integer> stack = new Stack<>(5/*default value, change it later*/); // Initialize the Stack instance
-    private VBox stackBox = new VBox(10); // Change back to VBox for vertical alignment
+    private Stack stack = new Stack(); // Initialize the Stack instance
+    private VBox stackBox = new VBox(10); // VBox for vertical alignment
 
     public Scene createScene(Stage primaryStage) {
         // Title text
@@ -62,22 +60,18 @@ public class VisualiseStack {
                     inputField.clear();
                 } catch (NumberFormatException ex) {
                     System.out.println("Please enter a valid integer.");
-                } catch (OverflowException oe) {
-                    //temporary, give proper message to user later
-                    oe.printStackTrace();
                 }
             }
         });
 
         // Event handler for "Pop" button
         popButton.setOnAction(e -> {
-            try {
+            if (!stack.isEmpty()) { // Check if the stack is not empty before popping
                 stack.pop();
-            } catch (UnderflowException ex) {
-                //temporary, give proper message to user later
-                ex.printStackTrace();
+                visualizeStack(); // Update visualization
+            } else {
+                System.out.println("Stack is empty. Cannot pop.");
             }
-            visualizeStack(); // Update visualization
         });
 
         // HBox for input and buttons at the bottom
@@ -108,8 +102,8 @@ public class VisualiseStack {
         AnchorPane.setRightAnchor(inputBox, 0.0);
         root.getChildren().add(inputBox);
 
-        // Create and return scene
-        return new Scene(root, 1040, 600);
+        // Create and return scene with specified dimensions
+        return new Scene(root, 1270, 660); // Set window size to 1270x660
     }
 
     // Method to style buttons consistently
@@ -123,7 +117,10 @@ public class VisualiseStack {
         stackBox.getChildren().clear(); // Clear current stack visualization
 
         // Iterate over stack values and add visual nodes
-        stack.forEach(value -> {
+        Stack.Node current = stack.getTop(); // Get the top node of the stack
+        while (current != null) {
+            int value = current.value;
+
             // Rectangle representing the stack node
             Rectangle rect = new Rectangle(120, 60); // Increase size for better visibility
             rect.setFill(Color.web("#D4BEE4"));
@@ -137,7 +134,10 @@ public class VisualiseStack {
 
             // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane(rect, valueText);
-            stackBox.getChildren().addFirst(stackPane); // Add new nodes at the end of VBox
-        });
+            stackBox.getChildren().add(stackPane); // Add new nodes at the end of VBox
+
+            // Move to the next node in the stack
+            current = current.next;
+        }
     }
 }
