@@ -14,11 +14,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import datastructures.Stack;
+import datastructures.linnear.Stack;
 
 public class VisualiseStack {
 
-    private Stack stack = new Stack(); // Initialize the Stack instance
+    private Stack<Integer> stack = new Stack<>(5/*default value, change it later*/); // Initialize the Stack instance
     private VBox stackBox = new VBox(10); // Change back to VBox for vertical alignment
 
     public Scene createScene(Stage primaryStage) {
@@ -113,10 +113,7 @@ public class VisualiseStack {
         stackBox.getChildren().clear(); // Clear current stack visualization
 
         // Iterate over stack values and add visual nodes
-        Stack.Node current = stack.getTop();
-        while (current != null) {
-            int value = current.value;
-
+        stack.forEach(value -> {
             // Rectangle representing the stack node
             Rectangle rect = new Rectangle(120, 60); // Increase size for better visibility
             rect.setFill(Color.web("#D4BEE4"));
@@ -130,10 +127,7 @@ public class VisualiseStack {
 
             // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane(rect, valueText);
-            stackBox.getChildren().add(stackPane); // Add new nodes at the end of VBox
-
-            // Move to the next node in the stack
-            current = current.next;
-        }
+            stackBox.getChildren().addFirst(stackPane); // Add new nodes at the end of VBox
+        });
     }
 }
