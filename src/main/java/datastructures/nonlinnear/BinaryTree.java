@@ -28,16 +28,10 @@ public class BinaryTree<T> implements Traversable<Node<T>> {
 
     public UUID assignLeft(T data, UUID id) throws OverflowException {
         UUID newId = UUID.randomUUID();
-        Iterator<Node<T>> iterator = iterator();
-        while(iterator.hasNext()) {
-            Node<T> i = iterator.next();
+        for (Node<T> i : this) {
             if (i.id.equals(id)) {
-                if (i.left != null) {
-                    throw new OverflowException();
-                } else {
-                    i.left = new Node<>(newId, data, null, null);
-                    return newId;
-                }
+                i.left = new Node<>(newId, data, null, null);
+                return newId;
             }
         }
         throw new IllegalArgumentException("No node found with given id");
@@ -45,16 +39,10 @@ public class BinaryTree<T> implements Traversable<Node<T>> {
 
     public UUID assignRight(T data, UUID id) throws OverflowException {
         UUID newId = UUID.randomUUID();
-        Iterator<Node<T>> iterator = iterator();
-        while(iterator.hasNext()) {
-            Node<T> i = iterator.next();
+        for (Node<T> i : this) {
             if (i.id.equals(id)) {
-                if (i.right != null) {
-                    throw new OverflowException();
-                } else {
-                    i.right = new Node<>(newId, data, null, null);
-                    return newId;
-                }
+                i.right = new Node<>(newId, data, null, null);
+                return newId;
             }
         }
         throw new IllegalArgumentException("No node found with given id");
