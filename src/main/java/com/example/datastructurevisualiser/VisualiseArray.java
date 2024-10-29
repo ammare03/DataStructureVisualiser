@@ -111,7 +111,7 @@ public class VisualiseArray {
         visualBox.setStyle("-fx-alignment: center; -fx-padding: 20px;"); // Add padding to the visualBox
 
         // Create the scene with the specified dimensions
-        Scene scene = new Scene(root, 1040, 600); // Set window size to 1040x600
+        Scene scene = new Scene(root, 1270, 660); // Set window size to 1270x660
 
         return scene;
     }

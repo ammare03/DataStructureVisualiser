@@ -5,6 +5,10 @@ public class Queue {
     private Node last;
     private int length;
 
+    public boolean isEmpty() {
+        return length == 0;
+    }
+
     public class Node {
         public int value;
         public Node next;

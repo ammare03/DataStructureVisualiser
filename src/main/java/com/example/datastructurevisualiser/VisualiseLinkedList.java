@@ -174,7 +174,7 @@ public class VisualiseLinkedList {
         root.getChildren().add(inputBox);  // Add the input box to the root AnchorPane
 
         // Create the scene with the specified dimensions
-        Scene scene = new Scene(root, 1040, 600); // Set window size to 1040x600
+        Scene scene = new Scene(root, 1270, 660); // Set window size to 1270x660
 
         return scene;
     }
@@ -193,9 +193,6 @@ public class VisualiseLinkedList {
         HBox tempListBox = new HBox(5); // Temporary HBox to hold nodes
         tempListBox.setAlignment(Pos.CENTER); // Center nodes within the HBox
         LinkedList.Node current = linkedList.head; // Access head node of linked list
-
-        // Reset current to head for visualization
-        current = linkedList.head;
 
         while (current != null) {
             int value = current.value;
