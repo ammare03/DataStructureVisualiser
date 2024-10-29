@@ -4,7 +4,6 @@ import exceptions.OverflowException;
 import exceptions.UnderflowException;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Spliterator;
@@ -14,11 +13,10 @@ public class Stack<T> implements Iterable<T> {
     private int top = -1;
     private T[] array;
     public Stack(int size) {
-        ArrayList<T> temp = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            temp.add((T) new Object());
+        if (size < 1) {
+            throw new IllegalArgumentException("size cannot be less than one!");
         }
-        array = (T[]) temp.toArray();
+        array = (T[]) new Object[size];
     }
     public void push(T data) throws OverflowException {
         if (top == array.length - 1) {
@@ -32,13 +30,15 @@ public class Stack<T> implements Iterable<T> {
         }
         return array[top--];
     }
+    public T peek() throws UnderflowException {
+        if(top == -1) {
+            throw new UnderflowException();
+        }
+        return array[top];
+    }
 
     private T[] getNulledArray() {
-        ArrayList<T> temp = new ArrayList<>(array.length);
-        for (int i = 0; i < array.length; i++) {
-            temp.add((T) new Object());
-        }
-        T[] nulledArray = (T[]) temp.toArray();
+        T[] nulledArray = (T[]) new Object[array.length];
         for (int i = 0; i < array.length; i++) {
             if (i <= top) {
                 nulledArray[i] = array[i];
