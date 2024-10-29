@@ -21,7 +21,7 @@ public class Stack<T> implements Iterable<T> {
         array = (T[]) temp.toArray();
     }
     public void push(T data) throws OverflowException {
-        if (top == array.length) {
+        if (top == array.length - 1) {
             throw new OverflowException();
         }
         array[++top] = data;
