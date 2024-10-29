@@ -33,19 +33,35 @@ public class Stack<T> implements Iterable<T> {
         return array[top--];
     }
 
+    private T[] getNulledArray() {
+        ArrayList<T> temp = new ArrayList<>(array.length);
+        for (int i = 0; i < array.length; i++) {
+            temp.add((T) new Object());
+        }
+        T[] nulledArray = (T[]) temp.toArray();
+        for (int i = 0; i < array.length; i++) {
+            if (i <= top) {
+                nulledArray[i] = array[i];
+            } else {
+                nulledArray[i] = null;
+            }
+        }
+        return nulledArray;
+    }
+
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        return Arrays.stream(Arrays.copyOfRange(array, 0, top + 1)).iterator();
+        return Arrays.stream(getNulledArray()).iterator();
     }
 
     @Override
     public void forEach(Consumer<? super T> action) {
-        Arrays.stream(Arrays.copyOfRange(array, 0, top + 1)).forEach(action);
+        Arrays.stream(getNulledArray()).forEach(action);
     }
 
     @Override
     public Spliterator<T> spliterator() {
-        return Arrays.stream(Arrays.copyOfRange(array, 0, top + 1)).spliterator();
+        return Arrays.stream(getNulledArray()).spliterator();
     }
 }
