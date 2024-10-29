@@ -57,7 +57,7 @@ public class DataStructureVisualiser extends Application {
         vbox.getChildren().add(hbox);
 
         // Return the Scene object with the desired dimensions
-        return new Scene(new StackPane(vbox), 1040, 600); // Set window size to 1040x600
+        return new Scene(new StackPane(vbox), 1270, 660); // Set window size to 1270x660
     }
 
     // Helper method to create styled buttons

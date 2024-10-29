@@ -26,6 +26,10 @@ public class Stack {
         }
     }
 
+    public boolean isEmpty() {
+        return top == null;
+    }
+
     public Node getTop() {
         System.out.println("Top: " + top.value);
         return top;
