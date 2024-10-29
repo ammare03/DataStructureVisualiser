@@ -1,7 +1,7 @@
 package datastructures.linnear;
 
-import exceptions.StackOverflowException;
-import exceptions.StackUnderflowException;
+import exceptions.OverflowException;
+import exceptions.UnderflowException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -20,15 +20,15 @@ public class Stack<T> implements Iterable<T> {
         }
         array = (T[]) temp.toArray();
     }
-    public void push(T data) {
+    public void push(T data) throws OverflowException {
         if (top == array.length) {
-            throw new StackOverflowException();
+            throw new OverflowException();
         }
         array[++top] = data;
     }
-    public T pop() {
+    public T pop() throws UnderflowException {
         if(top == -1) {
-            throw new StackUnderflowException();
+            throw new UnderflowException();
         }
         return array[top--];
     }

@@ -1,5 +1,7 @@
 package com.example.datastructurevisualiser;
 
+import exceptions.OverflowException;
+import exceptions.UnderflowException;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -60,13 +62,21 @@ public class VisualiseStack {
                     inputField.clear();
                 } catch (NumberFormatException ex) {
                     System.out.println("Please enter a valid integer.");
+                } catch (OverflowException oe) {
+                    //temporary, give proper message to user later
+                    oe.printStackTrace();
                 }
             }
         });
 
         // Event handler for "Pop" button
         popButton.setOnAction(e -> {
-            stack.pop();
+            try {
+                stack.pop();
+            } catch (UnderflowException ex) {
+                //temporary, give proper message to user later
+                ex.printStackTrace();
+            }
             visualizeStack(); // Update visualization
         });
 
