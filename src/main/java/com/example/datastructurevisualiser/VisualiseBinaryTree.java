@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.example.datastructurevisualiser.DataStructureVisualiser.getInputFromUser;
+
 public class VisualiseBinaryTree {
 
     private BinaryTree<String> binaryTree;
@@ -198,31 +200,30 @@ public class VisualiseBinaryTree {
             displayTree(node.getRight(), rightX, childY, offset * 0.75, node.getRight().getId()); // Recursive call for right child with reduced offset
         }
 
-        nodePane.setOnMouseClicked(t -> {
-            MenuItem assignLeft = new MenuItem("Assign Left");
-            MenuItem assignRight = new MenuItem("Assign Right");
-            MenuItem removeNode = new MenuItem("Remove Node");
-            assignLeft.setOnAction(_ -> {
-                binaryTree.assignLeft(inputField.getText().trim(), id);
-                inputField.clear();
-                visualizeTree();
-            });
-            assignRight.setOnAction(_ -> {
-                binaryTree.assignRight(inputField.getText().trim(), id);
-                inputField.clear();
-                visualizeTree();
-            });
-            removeNode.setOnAction(_ -> {
-                binaryTree.remove(id);
-                inputField.clear();
-                visualizeTree();
-            });
-            if(t.getButton().toString().equals("SECONDARY"))
+        nodePane.setOnMouseClicked(e -> {
+            if(e.getButton().toString().equals("SECONDARY")) {
+                MenuItem assignLeft = new MenuItem("Assign left");
+                MenuItem assignRight = new MenuItem("Assign right");
+                MenuItem removeNode = new MenuItem("Remove node");
+                assignLeft.setOnAction(_ -> getInputFromUser("Enter data").ifPresent(data -> {
+                    binaryTree.assignLeft(data.trim(), id);
+                    visualizeTree();
+                }));
+                assignRight.setOnAction(_ ->  getInputFromUser("Enter data").ifPresent(data -> {
+                    binaryTree.assignRight(data.trim(), id);
+                    visualizeTree();
+                }));
+                removeNode.setOnAction(_ -> {
+                    binaryTree.remove(id);
+                    inputField.clear();
+                    visualizeTree();
+                });
                 new ContextMenu(
                         assignLeft,
                         assignRight,
                         removeNode
-                ).show(circle,t.getScreenX(),t.getSceneY());
+                ).show(circle,e.getScreenX(),e.getSceneY());
+            }
         });
 
         nodes.put(id, circle);

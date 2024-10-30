@@ -1,6 +1,5 @@
 package com.example.datastructurevisualiser;
 
-import datastructures.linnear.Stack;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -53,26 +52,26 @@ public class DataStructureVisualiser extends Application {
         arrayButton.setOnAction(_ -> primaryStage.setScene(new VisualiseArray().createScene(primaryStage)));
         stackButton.setOnAction(_ -> {
             try {
-                getCapacityFromUser().ifPresent(capacity -> primaryStage.setScene(new VisualiseStack(capacity).createScene(primaryStage)));
+                getInputFromUser("Enter stack capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseStack(Integer.parseInt(capacity)).createScene(primaryStage)));
             } catch (IllegalArgumentException iae) {
                 new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK).show();
             }
         });
         queueButton.setOnAction(_ -> {
             try {
-                getCapacityFromUser().ifPresent(capacity -> primaryStage.setScene(new VisualiseQueue(capacity).createScene(primaryStage)));
+                getInputFromUser("Enter queue capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseQueue(Integer.parseInt(capacity)).createScene(primaryStage)));
             } catch (IllegalArgumentException iae) {
                 new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK);
             }
         });
         circularQueueButton.setOnAction(_ -> {
             try {
-                getCapacityFromUser().ifPresent(capacity -> primaryStage.setScene(new VisualiseCircularQueue(capacity).createScene(primaryStage)));
+                getInputFromUser("Enter circular queue capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseCircularQueue(Integer.parseInt(capacity)).createScene(primaryStage)));
             } catch (IllegalArgumentException iae) {
                 new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK);
             }
         });
-        linkedListButton.setOnAction(_ -> primaryStage.setScene(new VisualiseLinkedList().createScene(primaryStage)));
+        linkedListButton.setOnAction(_ -> getInputFromUser("Enter head").ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head).createScene(primaryStage))));
         binarySearchTreeButton.setOnAction(_ -> primaryStage.setScene(new VisualiseBinarySearchTree().createScene(primaryStage)));
         binaryTreeButton.setOnAction(_ -> primaryStage.setScene(new VisualiseBinaryTree().createScene(primaryStage)));
 
@@ -88,11 +87,11 @@ public class DataStructureVisualiser extends Application {
         return new Scene(new StackPane(vbox), 1270, 660); // Set window size to 1270x660
     }
 
-    private Optional<Integer> getCapacityFromUser() {
-        TextInputDialog enterStackCapacity = new TextInputDialog();
-        enterStackCapacity.setContentText("Enter capacity");
-        if(enterStackCapacity.showAndWait().isPresent()) {
-            return Optional.of(Integer.parseInt(enterStackCapacity.getEditor().getText()));
+    public static Optional<String> getInputFromUser(String contentText) {
+        TextInputDialog inputDialog = new TextInputDialog();
+        inputDialog.setContentText(contentText);
+        if(inputDialog.showAndWait().isPresent()) {
+            return Optional.of(inputDialog.getEditor().getText());
         } else {
             return Optional.empty();
         }
