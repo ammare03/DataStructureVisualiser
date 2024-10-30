@@ -20,7 +20,7 @@ import datastructures.linnear.Stack;
 
 public class VisualiseStack {
 
-    private Stack<Integer> stack; // Initialize the Stack instance
+    private Stack<String> stack; // Initialize the Stack instance
     private VBox stackBox = new VBox(10); // Change back to VBox for vertical alignment
 
     public VisualiseStack(int capacity) {
@@ -57,11 +57,10 @@ public class VisualiseStack {
 
         // Event handler for "Push" button
         pushButton.setOnAction(e -> {
-            String inputValue = inputField.getText();
+            String inputValue = inputField.getText().trim();
             if (!inputValue.isEmpty()) {
                 try {
-                    int value = Integer.parseInt(inputValue);
-                    stack.push(value);
+                    stack.push(inputValue);
                     visualizeStack(); // Update visualization
                     inputField.clear();
                 } catch (NumberFormatException ex) {
@@ -135,7 +134,7 @@ public class VisualiseStack {
             rect.setStrokeWidth(2);
 
             // Text displaying the value on the node
-            Text valueText = new Text(String.valueOf(value));
+            Text valueText = new Text(value);
             valueText.setFill(Color.web("#3B1E54"));
             valueText.setFont(Font.font("Verdana", FontWeight.BOLD, 18));
 

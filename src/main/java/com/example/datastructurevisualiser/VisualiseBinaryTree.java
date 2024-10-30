@@ -198,7 +198,7 @@ public class VisualiseBinaryTree {
             displayTree(node.getRight(), rightX, childY, offset * 0.75, node.getRight().getId()); // Recursive call for right child with reduced offset
         }
 
-        circle.setOnMouseClicked(t -> {
+        nodePane.setOnMouseClicked(t -> {
             MenuItem assignLeft = new MenuItem("Assign Left");
             MenuItem assignRight = new MenuItem("Assign Right");
             MenuItem removeNode = new MenuItem("Remove Node");

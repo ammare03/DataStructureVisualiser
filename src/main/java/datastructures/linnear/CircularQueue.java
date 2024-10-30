@@ -21,7 +21,7 @@ public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
         }
         array = (T[]) new Object[size];
     }
-    public void push(T data) throws OverflowException {
+    public void enqueue(T data) throws OverflowException {
         if ((!isWrapped && ((rear == 0) && (front == (array.length - 1)))) || (isWrapped && (front == (rear - 1)))) {
             throw new OverflowException("Circular Queue Overflow!");
         }
@@ -33,7 +33,7 @@ public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
             array[++front] = data;
         }
     }
-    public T pop() throws UnderflowException {
+    public T dequeue() throws UnderflowException {
         if ((isWrapped && (((rear == 0) && (front == (array.length - 1))))) || (!isWrapped && (rear == (front + 1)))) {
             throw new UnderflowException("Circular Queue Underflow!");
         }
@@ -90,14 +90,14 @@ public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
     @Override
     public String getIndexStateAfterPop() throws UnderflowException {
         CircularQueue<T> clone = clone();
-        clone.pop();
+        clone.dequeue();
         return clone.getIndexState();
     }
 
     @Override
     public String getIndexStateAfterPush(T data) throws OverflowException {
         CircularQueue<T> clone = clone();
-        clone.push(data);
+        clone.enqueue(data);
         return clone.getIndexState();
     }
 }

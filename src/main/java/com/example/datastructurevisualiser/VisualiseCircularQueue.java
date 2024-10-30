@@ -1,5 +1,6 @@
 package com.example.datastructurevisualiser;
 
+import datastructures.linnear.CircularQueue;
 import datastructures.linnear.Queue;
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
@@ -9,23 +10,24 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class VisualiseQueue {
+public class VisualiseCircularQueue {
 
-    private Queue<String> queue;
+    private CircularQueue<String> queue;
     private HBox queueBox = new HBox(10); // HBox for visualizing queue nodes
     private VBox centerQueueBox = new VBox(); // Container to center the queue visualization
 
-    public VisualiseQueue(int capacity) {
-        queue = new Queue<>(capacity);
+    public VisualiseCircularQueue(int capacity) {
+        queue = new CircularQueue<>(capacity);
     }
 
     public Scene createScene(Stage primaryStage) {

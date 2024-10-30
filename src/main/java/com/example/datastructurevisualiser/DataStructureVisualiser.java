@@ -16,6 +16,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.Optional;
+
 public class DataStructureVisualiser extends Application {
 
     @Override
@@ -39,41 +41,61 @@ public class DataStructureVisualiser extends Application {
         vbox.getChildren().add(title);
 
         // Create buttons for each data structure
-        Button arraysButton = createStyledButton("Visualise Arrays");
-        Button stacksButton = createStyledButton("Visualise Stacks");
-        Button queuesButton = createStyledButton("Visualise Queues");
-        Button linkedListsButton = createStyledButton("Visualise Linked Lists");
-        Button binarySearchTreesButton = createStyledButton("Visualise Binary Search Trees");
-        Button binaryTreesButton = createStyledButton("Visualize Binary Trees");
+        Button arrayButton = createStyledButton("Array");
+        Button stackButton = createStyledButton("Stack");
+        Button queueButton = createStyledButton("Queue");
+        Button circularQueueButton = createStyledButton("Circular Queue");
+        Button linkedListButton = createStyledButton("Linked List");
+        Button binarySearchTreeButton = createStyledButton("Binary Search Tree");
+        Button binaryTreeButton = createStyledButton("Binary Tree");
 
         // Add action to the buttons to switch scenes
-        arraysButton.setOnAction(e -> primaryStage.setScene(new VisualiseArray().createScene(primaryStage)));
-        stacksButton.setOnAction(e -> {
-            TextInputDialog enterStackCapacity = new TextInputDialog();
-            enterStackCapacity.setContentText("Enter stack capacity");
-            enterStackCapacity.showAndWait().ifPresent(string -> {
-                try {
-                    primaryStage.setScene(new VisualiseStack(Integer.parseInt(string)).createScene(primaryStage));
-                } catch (IllegalArgumentException iae) {
-                    new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK).show();
-                }
-            });
+        arrayButton.setOnAction(_ -> primaryStage.setScene(new VisualiseArray().createScene(primaryStage)));
+        stackButton.setOnAction(_ -> {
+            try {
+                getCapacityFromUser().ifPresent(capacity -> primaryStage.setScene(new VisualiseStack(capacity).createScene(primaryStage)));
+            } catch (IllegalArgumentException iae) {
+                new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK).show();
+            }
         });
-        queuesButton.setOnAction(e -> primaryStage.setScene(new VisualiseQueue().createScene(primaryStage)));
-        linkedListsButton.setOnAction(e -> primaryStage.setScene(new VisualiseLinkedList().createScene(primaryStage)));
-        binarySearchTreesButton.setOnAction(e -> primaryStage.setScene(new VisualiseBinarySearchTree().createScene(primaryStage)));
-        binaryTreesButton.setOnAction(e -> primaryStage.setScene(new VisualiseBinaryTree().createScene(primaryStage)));
+        queueButton.setOnAction(_ -> {
+            try {
+                getCapacityFromUser().ifPresent(capacity -> primaryStage.setScene(new VisualiseQueue(capacity).createScene(primaryStage)));
+            } catch (IllegalArgumentException iae) {
+                new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK);
+            }
+        });
+        circularQueueButton.setOnAction(_ -> {
+            try {
+                getCapacityFromUser().ifPresent(capacity -> primaryStage.setScene(new VisualiseCircularQueue(capacity).createScene(primaryStage)));
+            } catch (IllegalArgumentException iae) {
+                new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK);
+            }
+        });
+        linkedListButton.setOnAction(_ -> primaryStage.setScene(new VisualiseLinkedList().createScene(primaryStage)));
+        binarySearchTreeButton.setOnAction(_ -> primaryStage.setScene(new VisualiseBinarySearchTree().createScene(primaryStage)));
+        binaryTreeButton.setOnAction(_ -> primaryStage.setScene(new VisualiseBinaryTree().createScene(primaryStage)));
 
         // Create an HBox to hold the buttons horizontally with spacing
         HBox hbox = new HBox(20);  // Horizontal spacing between buttons
         hbox.setStyle("-fx-alignment: center;");  // Center the HBox within the VBox
-        hbox.getChildren().addAll(arraysButton, stacksButton, queuesButton, linkedListsButton, binarySearchTreesButton, binaryTreesButton);
+        hbox.getChildren().addAll(arrayButton, stackButton, queueButton, circularQueueButton, linkedListButton, binarySearchTreeButton, binaryTreeButton);
 
         // Add HBox of buttons to the VBox
         vbox.getChildren().add(hbox);
 
         // Return the Scene object with the desired dimensions
         return new Scene(new StackPane(vbox), 1270, 660); // Set window size to 1270x660
+    }
+
+    private Optional<Integer> getCapacityFromUser() {
+        TextInputDialog enterStackCapacity = new TextInputDialog();
+        enterStackCapacity.setContentText("Enter capacity");
+        if(enterStackCapacity.showAndWait().isPresent()) {
+            return Optional.of(Integer.parseInt(enterStackCapacity.getEditor().getText()));
+        } else {
+            return Optional.empty();
+        }
     }
 
     // Helper method to create styled buttons
