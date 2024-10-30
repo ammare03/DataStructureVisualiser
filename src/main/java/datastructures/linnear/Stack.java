@@ -72,7 +72,7 @@ public class Stack<T> implements Iterable<T>, ArrayBased<T> {
     @Override
     public String getIndexState() {
         return "top : " + top + "\n" +
-                "array : " + array;
+                "array : " + Arrays.toString(array);
     }
 
     @Override

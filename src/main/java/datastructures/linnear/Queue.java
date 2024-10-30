@@ -75,7 +75,7 @@ public class Queue<T> implements Iterable<T>, ArrayBased<T> {
     public String getIndexState() {
         return "front : " + front + "\n" +
                 "rear : " + rear + "\n" +
-                "array : " + array;
+                "array : " + Arrays.toString(array);
     }
 
     @Override

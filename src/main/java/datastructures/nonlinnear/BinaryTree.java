@@ -1,14 +1,14 @@
 package datastructures.nonlinnear;
 
 import datastructures.nonlinnear.BinaryTree.Node;
-import exceptions.OverflowException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 public class BinaryTree<T> implements Traversable<Node<T>> {
-    private Node<T> root;
+    private final Node<T> root;
 
     public BinaryTree(T root) {
         this.root = new Node<>(UUID.randomUUID(), root, null, null);
@@ -121,6 +121,40 @@ public class BinaryTree<T> implements Traversable<Node<T>> {
     @Override
     public String toString() {
         return root.toString(0);
+    }
+
+    public static <T> BinaryTree<T> constructBinaryTree(T[] inOrder, T[] preOrder) {
+        if (inOrder.length != preOrder.length) {
+            throw new IllegalArgumentException("Inconsistent traversals");
+        }
+        if (inOrder.length < 1) {
+            return null;
+        }
+
+        T rootData = preOrder[0];
+        BinaryTree<T> tree = new BinaryTree<>(rootData);
+
+        int inRootIndex = -1;
+        for (int i = 0; i < inOrder.length; i++) {
+            T inData = inOrder[i];
+            if (inData.equals(rootData)) {
+                inRootIndex = i;
+                break;
+            }
+        }
+
+        T[] inSubLeft = (T[]) List.of(inOrder).subList(0, inRootIndex).toArray();
+        T[] preSubRLeft = (T[]) List.of(preOrder).subList(1, inSubLeft.length + 1).toArray();
+        T[] inSubRight = (T[]) List.of(inOrder).subList(inRootIndex + 1, inOrder.length).toArray();
+        T[] preSubRight = (T[]) List.of(preOrder).subList(inSubLeft.length + 1, preOrder.length).toArray();
+
+        BinaryTree<T> leftSubTree = constructBinaryTree(inSubLeft, preSubRLeft);
+        BinaryTree<T> rightSubTree = constructBinaryTree(inSubRight, preSubRight);
+
+        tree.root.left = leftSubTree == null ? null : leftSubTree.root;
+        tree.root.right = rightSubTree == null ? null : rightSubTree.root;
+
+        return tree;
     }
 
     public static class Node<T> {

@@ -84,7 +84,7 @@ public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
         return "front : " + front + "\n" +
                 "rear : " + rear + "\n" +
                 "isWrapped : " + isWrapped + "\n" +
-                "array : " + array;
+                "array : " + Arrays.toString(array);
     }
 
     @Override
