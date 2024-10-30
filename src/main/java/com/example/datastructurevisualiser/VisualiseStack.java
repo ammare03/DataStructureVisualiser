@@ -5,8 +5,7 @@ import exceptions.OverflowException;
 import exceptions.UnderflowException;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -21,8 +20,12 @@ import datastructures.linnear.Stack;
 
 public class VisualiseStack {
 
-    private Stack<Integer> stack = new Stack<>(5/*default value, change it later*/); // Initialize the Stack instance
+    private Stack<Integer> stack; // Initialize the Stack instance
     private VBox stackBox = new VBox(10); // Change back to VBox for vertical alignment
+
+    public VisualiseStack(int capacity) {
+        stack = new Stack<>(capacity);
+    }
 
     public Scene createScene(Stage primaryStage) {
         // Title text
@@ -64,8 +67,7 @@ public class VisualiseStack {
                 } catch (NumberFormatException ex) {
                     System.out.println("Please enter a valid integer.");
                 } catch (OverflowException oe) {
-                    //temporary, give proper message to user later
-                    oe.printStackTrace();
+                    new Alert(Alert.AlertType.ERROR, oe.getMessage(), ButtonType.OK).show();
                 }
             }
         });
@@ -75,9 +77,8 @@ public class VisualiseStack {
             try {
                 stack.pop();
                 visualizeStack(); // Update visualization
-            } catch (UnderflowException ex) {
-                //temporary, give proper message to user later
-                ex.printStackTrace();
+            } catch (UnderflowException ue) {
+                new Alert(Alert.AlertType.ERROR, ue.getMessage(), ButtonType.OK).show();
             }
         });
 
@@ -108,6 +109,8 @@ public class VisualiseStack {
         AnchorPane.setLeftAnchor(inputBox, 0.0);
         AnchorPane.setRightAnchor(inputBox, 0.0);
         root.getChildren().add(inputBox);
+
+        visualizeStack();
 
         // Create and return scene
         return new Scene(root, 1040, 600);

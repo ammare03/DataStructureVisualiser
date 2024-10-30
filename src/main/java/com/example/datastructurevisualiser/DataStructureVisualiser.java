@@ -1,8 +1,12 @@
 package com.example.datastructurevisualiser;
 
+import datastructures.linnear.Stack;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -44,7 +48,17 @@ public class DataStructureVisualiser extends Application {
 
         // Add action to the buttons to switch scenes
         arraysButton.setOnAction(e -> primaryStage.setScene(new VisualiseArray().createScene(primaryStage)));
-        stacksButton.setOnAction(e -> primaryStage.setScene(new VisualiseStack().createScene(primaryStage)));
+        stacksButton.setOnAction(e -> {
+            TextInputDialog enterStackCapacity = new TextInputDialog();
+            enterStackCapacity.setContentText("Enter stack capacity");
+            enterStackCapacity.showAndWait().ifPresent(string -> {
+                try {
+                    primaryStage.setScene(new VisualiseStack(Integer.parseInt(string)).createScene(primaryStage));
+                } catch (IllegalArgumentException iae) {
+                    new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK).show();
+                }
+            });
+        });
         queuesButton.setOnAction(e -> primaryStage.setScene(new VisualiseQueue().createScene(primaryStage)));
         linkedListsButton.setOnAction(e -> primaryStage.setScene(new VisualiseLinkedList().createScene(primaryStage)));
         binarySearchTreesButton.setOnAction(e -> primaryStage.setScene(new VisualiseBinarySearchTree().createScene(primaryStage)));

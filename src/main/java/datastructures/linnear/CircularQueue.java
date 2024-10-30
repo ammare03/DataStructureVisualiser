@@ -23,7 +23,7 @@ public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
     }
     public void push(T data) throws OverflowException {
         if ((!isWrapped && ((rear == 0) && (front == (array.length - 1)))) || (isWrapped && (front == (rear - 1)))) {
-            throw new OverflowException();
+            throw new OverflowException("Circular Queue Overflow!");
         }
         if (front == array.length - 1) {
             array[front = 0] = data;
@@ -35,7 +35,7 @@ public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
     }
     public T pop() throws UnderflowException {
         if ((isWrapped && (((rear == 0) && (front == (array.length - 1))))) || (!isWrapped && (rear == (front + 1)))) {
-            throw new UnderflowException();
+            throw new UnderflowException("Circular Queue Underflow!");
         }
         if (rear == array.length - 1) {
             specialCaseQueueEmpty = front == rear;

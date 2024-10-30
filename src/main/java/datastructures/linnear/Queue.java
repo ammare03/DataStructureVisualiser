@@ -21,13 +21,13 @@ public class Queue<T> implements Iterable<T>, ArrayBased<T> {
     }
     public void push(T data) throws OverflowException {
         if (front == array.length - 1) {
-            throw new OverflowException();
+            throw new OverflowException("Queue Overflow!");
         }
         array[++front] = data;
     }
     public T pop() throws UnderflowException {
         if (front < rear) {
-            throw new UnderflowException();
+            throw new UnderflowException("Queue Underflow!");
         }
         return array[rear++];
     }
