@@ -11,6 +11,7 @@ module com.example.datastructurevisualiser {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires annotations;
+    requires jdk.jshell;
 
     opens com.example.datastructurevisualiser to javafx.fxml;
     exports com.example.datastructurevisualiser;

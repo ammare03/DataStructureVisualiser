@@ -105,4 +105,8 @@ public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>> {
     public String toString() {
         return root.toString(0);
     }
+
+    public Node<T> getRoot() {
+        return root;
+    }
 }

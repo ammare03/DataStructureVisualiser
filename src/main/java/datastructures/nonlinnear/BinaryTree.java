@@ -61,10 +61,6 @@ public class BinaryTree<T> extends BaseTree<T> {
         throw new IllegalArgumentException("No node found with given id");
     }
 
-    public Node<T> getRoot() {
-        return root;
-    }
-
     public static <T> BinaryTree<T> constructBinaryTree(T[] inOrder, T[] preOrder) {
         if (inOrder.length != preOrder.length) {
             throw new IllegalArgumentException("Inconsistent traversals");

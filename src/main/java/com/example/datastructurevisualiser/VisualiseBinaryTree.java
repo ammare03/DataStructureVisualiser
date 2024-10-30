@@ -69,7 +69,7 @@ public class VisualiseBinaryTree {
 
         // Set up HBox for input field and buttons
         HBox inputBox = new HBox(10);
-        inputBox.getChildren().addAll(inorderButton, preorderButton, postorderButton, backButton, traverseNextButton);
+        inputBox.getChildren().addAll(inorderButton, preorderButton, postorderButton, traverseNextButton, backButton);
         inputBox.setStyle("-fx-alignment: center;");
 
         // "Back" button functionality
@@ -111,6 +111,7 @@ public class VisualiseBinaryTree {
     }
 
     private void initializeTraversal(Traversable.Traversal traversal) {
+        nodes.values().forEach(circle -> circle.setStroke(Color.web("#3B1E54")));
         traverseNextButton.setDisable(false);
         traversalResultText.setText(traversal.name() + ':');
         Iterator<Node<String>> i = binaryTree.iterator(traversal);

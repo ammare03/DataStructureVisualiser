@@ -72,7 +72,7 @@ public class DataStructureVisualiser extends Application {
             }
         });
         linkedListButton.setOnAction(_ -> getInputFromUser("Enter head").ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head).createScene(primaryStage))));
-        binarySearchTreeButton.setOnAction(_ -> primaryStage.setScene(new VisualiseBinarySearchTree().createScene(primaryStage)));
+        binarySearchTreeButton.setOnAction(_ -> getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinarySearchTree(root).createScene(primaryStage))));
         binaryTreeButton.setOnAction(_ -> getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinaryTree(root).createScene(primaryStage))));
 
         // Create an HBox to hold the buttons horizontally with spacing
