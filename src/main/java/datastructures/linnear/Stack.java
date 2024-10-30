@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class Stack<T> implements Iterable<T> {
+public class Stack<T> implements Iterable<T>, ArrayBased<T> {
     private int top = -1;
     private T[] array;
     public Stack(int size) {
@@ -59,5 +59,33 @@ public class Stack<T> implements Iterable<T> {
     @Override
     public Spliterator<T> spliterator() {
         return Arrays.stream(getNulledArray()).spliterator();
+    }
+
+    @Override
+    protected Stack<T> clone() {
+        Stack<T> stack = new Stack<>(array.length);
+        stack.array = array.clone();
+        stack.top = top;
+        return stack;
+    }
+
+    @Override
+    public String getIndexState() {
+        return "top : " + top + "\n" +
+                "array : " + array;
+    }
+
+    @Override
+    public String getIndexStateAfterPop() throws UnderflowException {
+        Stack<T> clone = clone();
+        clone.pop();
+        return clone.getIndexState();
+    }
+
+    @Override
+    public String getIndexStateAfterPush(T data) throws OverflowException {
+        Stack<T> clone = clone();
+        clone.push(data);
+        return clone.getIndexState();
     }
 }

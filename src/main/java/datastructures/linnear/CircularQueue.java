@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class CircularQueue<T> implements Iterable<T> {
+public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
     private T[] array;
     private int front = -1;
     private int rear = 0;
@@ -66,5 +66,38 @@ public class CircularQueue<T> implements Iterable<T> {
     @Override
     public Spliterator<T> spliterator() {
         return Arrays.stream(getNulledArray()).spliterator();
+    }
+
+    @Override
+    protected CircularQueue<T> clone() {
+        CircularQueue<T> circularQueue = new CircularQueue<>(array.length);
+        circularQueue.array = array.clone();
+        circularQueue.front = front;
+        circularQueue.rear = rear;
+        circularQueue.isWrapped = isWrapped;
+        circularQueue.specialCaseQueueEmpty = specialCaseQueueEmpty;
+        return circularQueue;
+    }
+
+    @Override
+    public String getIndexState() {
+        return "front : " + front + "\n" +
+                "rear : " + rear + "\n" +
+                "isWrapped : " + isWrapped + "\n" +
+                "array : " + array;
+    }
+
+    @Override
+    public String getIndexStateAfterPop() throws UnderflowException {
+        CircularQueue<T> clone = clone();
+        clone.pop();
+        return clone.getIndexState();
+    }
+
+    @Override
+    public String getIndexStateAfterPush(T data) throws OverflowException {
+        CircularQueue<T> clone = clone();
+        clone.push(data);
+        return clone.getIndexState();
     }
 }
