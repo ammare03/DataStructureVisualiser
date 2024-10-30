@@ -1,5 +1,7 @@
 package com.example.datastructurevisualiser;
 
+import exceptions.OverflowException;
+import exceptions.UnderflowException;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -14,12 +16,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import datastructures.Stack;
+import datastructures.linnear.Stack;
 
 public class VisualiseStack {
 
-    private Stack stack = new Stack(); // Initialize the Stack instance
-    private VBox stackBox = new VBox(10); // VBox for vertical alignment
+    private Stack<Integer> stack = new Stack<>(5); // Initialize the Stack instance
+    private VBox stackBox = new VBox(10); // Change back to VBox for vertical alignment
+    private Text errorMessage = new Text(""); // Text node for displaying error messages
 
     public Scene createScene(Stage primaryStage) {
         // Title text
@@ -27,10 +30,14 @@ public class VisualiseStack {
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
         title.setFill(Color.web("#EEEEEE"));
 
-        // Main layout VBox for title
-        VBox mainVBox = new VBox(20);
+        // Configure error message text
+        errorMessage.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+        errorMessage.setFill(Color.RED);
+
+        // Main layout VBox for title and error message
+        VBox mainVBox = new VBox(10);
         mainVBox.setStyle("-fx-background-color: #3B1E54; -fx-alignment: center;");
-        mainVBox.getChildren().add(title);
+        mainVBox.getChildren().addAll(title, errorMessage);
 
         // TextField for user input
         TextField inputField = new TextField();
@@ -57,20 +64,24 @@ public class VisualiseStack {
                     int value = Integer.parseInt(inputValue);
                     stack.push(value);
                     visualizeStack(); // Update visualization
+                    errorMessage.setText(""); // Clear any previous error message
                     inputField.clear();
                 } catch (NumberFormatException ex) {
                     System.out.println("Please enter a valid integer.");
+                } catch (OverflowException oe) {
+                    errorMessage.setText("Stack Overflow!"); // Display overflow error
                 }
             }
         });
 
         // Event handler for "Pop" button
         popButton.setOnAction(e -> {
-            if (!stack.isEmpty()) { // Check if the stack is not empty before popping
+            try {
                 stack.pop();
                 visualizeStack(); // Update visualization
-            } else {
-                System.out.println("Stack is empty. Cannot pop.");
+                errorMessage.setText(""); // Clear any previous error message
+            } catch (UnderflowException ex) {
+                errorMessage.setText("Stack Underflow!"); // Display underflow error
             }
         });
 
@@ -83,7 +94,7 @@ public class VisualiseStack {
         AnchorPane root = new AnchorPane();
         root.setStyle("-fx-background-color: #3B1E54;");
 
-        // Add mainVBox (title) to top of the AnchorPane
+        // Add mainVBox (title and error message) to top of the AnchorPane
         AnchorPane.setTopAnchor(mainVBox, 20.0);
         AnchorPane.setLeftAnchor(mainVBox, 0.0);
         AnchorPane.setRightAnchor(mainVBox, 0.0);
@@ -102,8 +113,8 @@ public class VisualiseStack {
         AnchorPane.setRightAnchor(inputBox, 0.0);
         root.getChildren().add(inputBox);
 
-        // Create and return scene with specified dimensions
-        return new Scene(root, 1270, 660); // Set window size to 1270x660
+        // Create and return scene
+        return new Scene(root, 1040, 600);
     }
 
     // Method to style buttons consistently
@@ -117,10 +128,7 @@ public class VisualiseStack {
         stackBox.getChildren().clear(); // Clear current stack visualization
 
         // Iterate over stack values and add visual nodes
-        Stack.Node current = stack.getTop(); // Get the top node of the stack
-        while (current != null) {
-            int value = current.value;
-
+        stack.forEach(value -> {
             // Rectangle representing the stack node
             Rectangle rect = new Rectangle(120, 60); // Increase size for better visibility
             rect.setFill(Color.web("#D4BEE4"));
@@ -134,10 +142,7 @@ public class VisualiseStack {
 
             // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane(rect, valueText);
-            stackBox.getChildren().add(stackPane); // Add new nodes at the end of VBox
-
-            // Move to the next node in the stack
-            current = current.next;
-        }
+            stackBox.getChildren().addFirst(stackPane); // Add new nodes at the end of VBox
+        });
     }
 }

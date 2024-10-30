@@ -39,19 +39,21 @@ public class DataStructureVisualiser extends Application {
         Button stacksButton = createStyledButton("Visualise Stacks");
         Button queuesButton = createStyledButton("Visualise Queues");
         Button linkedListsButton = createStyledButton("Visualise Linked Lists");
-        Button binaryTreesButton = createStyledButton("Visualise Binary Trees");
+        Button binarySearchTreesButton = createStyledButton("Visualise Binary Search Trees");
+        Button binaryTreesButton = createStyledButton("Visualize Binary Trees");
 
         // Add action to the buttons to switch scenes
         arraysButton.setOnAction(e -> primaryStage.setScene(new VisualiseArray().createScene(primaryStage)));
         stacksButton.setOnAction(e -> primaryStage.setScene(new VisualiseStack().createScene(primaryStage)));
         queuesButton.setOnAction(e -> primaryStage.setScene(new VisualiseQueue().createScene(primaryStage)));
         linkedListsButton.setOnAction(e -> primaryStage.setScene(new VisualiseLinkedList().createScene(primaryStage)));
+        binarySearchTreesButton.setOnAction(e -> primaryStage.setScene(new VisualiseBinarySearchTree().createScene(primaryStage)));
         binaryTreesButton.setOnAction(e -> primaryStage.setScene(new VisualiseBinaryTree().createScene(primaryStage)));
 
         // Create an HBox to hold the buttons horizontally with spacing
         HBox hbox = new HBox(20);  // Horizontal spacing between buttons
         hbox.setStyle("-fx-alignment: center;");  // Center the HBox within the VBox
-        hbox.getChildren().addAll(arraysButton, stacksButton, queuesButton, linkedListsButton, binaryTreesButton);
+        hbox.getChildren().addAll(arraysButton, stacksButton, queuesButton, linkedListsButton, binarySearchTreesButton, binaryTreesButton);
 
         // Add HBox of buttons to the VBox
         vbox.getChildren().add(hbox);

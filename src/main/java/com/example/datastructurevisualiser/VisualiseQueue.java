@@ -12,13 +12,16 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import datastructures.Queue;
+import datastructures.linnear.Queue;
+import exceptions.OverflowException;
+import exceptions.UnderflowException;
 
 public class VisualiseQueue {
 
-    private Queue queue = new Queue(); // Initialize the Queue instance
+    private Queue<Integer> queue = new Queue<>(5); // Initialize the Queue instance with size 5
     private HBox queueBox = new HBox(10); // HBox for visualizing queue nodes
     private VBox centerQueueBox = new VBox(); // Container to center the queue visualization
+    private Text messageText = new Text(); // Text node for displaying error messages
 
     public Scene createScene(Stage primaryStage) {
         // Create the title text
@@ -26,14 +29,18 @@ public class VisualiseQueue {
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
         title.setFill(Color.web("#EEEEEE"));
 
+        // Style the messageText for displaying messages
+        messageText.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+        messageText.setFill(Color.RED); // Set color to red for error messages
+
         // Create a VBox for the main layout
         VBox mainVBox = new VBox();
         mainVBox.setStyle("-fx-background-color: #3B1E54;"); // Set background color
         mainVBox.setAlignment(Pos.CENTER); // Center the main VBox
-        mainVBox.setSpacing(20); // Space between components
+        mainVBox.setSpacing(10); // Space between components
 
-        // Add title to the main VBox
-        mainVBox.getChildren().add(title);
+        // Add title and message text to the main VBox
+        mainVBox.getChildren().addAll(title, messageText);
 
         // Create a VBox to center the queue visualization
         centerQueueBox.setAlignment(Pos.CENTER); // Center the queue visualization
@@ -67,22 +74,26 @@ public class VisualiseQueue {
             if (!inputValue.isEmpty()) {
                 try {
                     int value = Integer.parseInt(inputValue);
-                    queue.enqueue(value);
+                    queue.push(value); // Using push method from Queue
                     visualizeQueue(); // Update visualization
                     inputField.clear();
+                    messageText.setText(""); // Clear any previous error message
                 } catch (NumberFormatException ex) {
-                    System.out.println("Please enter a valid integer.");
+                    messageText.setText("Please enter a valid integer.");
+                } catch (OverflowException oe) {
+                    messageText.setText("Queue is full! Cannot Enqueue."); // Display overflow message
                 }
             }
         });
 
         // Event handler for "Dequeue" button
         dequeueButton.setOnAction(e -> {
-            if (!queue.isEmpty()) { // Check if the queue is not empty before dequeueing
-                queue.dequeue();
+            try {
+                queue.pop(); // Using pop method from Queue
                 visualizeQueue(); // Update visualization
-            } else {
-                System.out.println("Queue is empty. Cannot dequeue.");
+                messageText.setText(""); // Clear any previous error message
+            } catch (UnderflowException ue) {
+                messageText.setText("Queue is empty! Cannot Dequeue."); // Display underflow message
             }
         });
 
@@ -106,10 +117,9 @@ public class VisualiseQueue {
     private void visualizeQueue() {
         queueBox.getChildren().clear(); // Clear current queue visualization
 
-        // Iterate over queue values and add visual nodes
-        Queue.Node current = queue.getFirst(); // Get the first node of the queue
-        while (current != null) {
-            int value = current.value;
+        // Iterate over queue values and add visual nodes based on the array structure
+        for (int i = queue.getRear(); i <= queue.getFront(); i++) {
+            Integer value = (Integer) queue.getArray()[i];
 
             // Rectangle representing the queue node
             Rectangle rect = new Rectangle(100, 50);
@@ -127,7 +137,7 @@ public class VisualiseQueue {
             queueBox.getChildren().add(stackPane); // Add the stack pane to the queue box
 
             // Add arrow between nodes if not the last node
-            if (current.next != null) {
+            if (i < queue.getFront()) {
                 Line arrow = new Line(0, 25, 30, 25); // Extend line to connect nodes
                 arrow.setStroke(Color.web("#EEEEEE"));
                 arrow.setStrokeWidth(2);
@@ -137,9 +147,6 @@ public class VisualiseQueue {
                 arrowPane.setAlignment(Pos.CENTER);  // Center alignment in the HBox
                 queueBox.getChildren().add(arrowPane); // Add the arrow to the queue box
             }
-
-            // Move to the next node in the queue
-            current = current.next;
         }
     }
 }

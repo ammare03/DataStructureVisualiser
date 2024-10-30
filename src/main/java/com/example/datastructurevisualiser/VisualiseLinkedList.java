@@ -1,11 +1,9 @@
 package com.example.datastructurevisualiser;
 
-import com.example.datastructurevisualiser.DataStructureVisualiser;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -16,34 +14,38 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import datastructures.LinkedList; // Ensure this is imported correctly
+import datastructures.linnear.LinkedList;
 
 public class VisualiseLinkedList {
 
-    private LinkedList linkedList = new LinkedList(); // Initialize the LinkedList instance
-    private HBox listBox = new HBox(5); // HBox for visualizing linked list nodes with reduced spacing
-    private VBox centerVBox = new VBox(); // Pane for centering the list box vertically
+    private LinkedList<Integer> linkedList = new LinkedList<>(); // Initialize with a dummy head node
+    private VBox centerVBox = new VBox(20); // Use VBox for vertical alignment with spacing
+    private Text errorMessage = new Text(); // Text object for error messages
 
     public Scene createScene(Stage primaryStage) {
-        // Create the title text
+        // Title text configuration
         Text title = new Text("Visualise Linked Lists");
-        title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));  // Title font settings
-        title.setFill(Color.web("#EEEEEE"));  // Title text color
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
+        title.setFill(Color.web("#EEEEEE"));
 
-        // Create a VBox for the main content
-        VBox mainVBox = new VBox(20);  // Vertical spacing
-        mainVBox.setStyle("-fx-background-color: #3B1E54; -fx-alignment: center;");  // Background and alignment
-
-        // Add the title to the main VBox
+        // Main content layout
+        VBox mainVBox = new VBox(20);
+        mainVBox.setStyle("-fx-background-color: #3B1E54;");
+        mainVBox.setAlignment(Pos.TOP_CENTER); // Align title at top center
         mainVBox.getChildren().add(title);
+        mainVBox.getChildren().add(errorMessage); // Add the error message to the main VBox
 
-        // Create a TextField for user input
+        // Center VBox for visualization
+        centerVBox.setAlignment(Pos.CENTER);
+        centerVBox.setStyle("-fx-pref-height: 400; -fx-pref-width: 800;"); // This might not be needed anymore
+
+        // Input field configuration
         TextField inputField = new TextField();
-        inputField.setPromptText("Enter value");  // Placeholder text
+        inputField.setPromptText("Enter value");
         inputField.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-size: 16px; " +
-                "-fx-padding: 10px; -fx-pref-width: 200px;");  // Styling for the TextField
+                "-fx-padding: 10px; -fx-pref-width: 200px;");
 
-        // Create buttons for linked list operations and going back
+        // Button configurations
         Button appendButton = new Button("Append");
         Button prependButton = new Button("Prepend");
         Button removeByValueButton = new Button("Remove By Value");
@@ -51,7 +53,6 @@ public class VisualiseLinkedList {
         Button setNodeValueButton = new Button("Set Node Value");
         Button backButton = new Button("Back");
 
-        // Button styles
         styleButton(appendButton);
         styleButton(prependButton);
         styleButton(removeByValueButton);
@@ -59,170 +60,174 @@ public class VisualiseLinkedList {
         styleButton(setNodeValueButton);
         styleButton(backButton);
 
-        // Create an HBox for the input field and buttons
-        HBox inputBox = new HBox(10);  // Horizontal spacing between components
+        // Input field and buttons
+        HBox inputBox = new HBox(10);
         inputBox.getChildren().addAll(inputField, appendButton, prependButton, removeByValueButton, insertAfterButton, setNodeValueButton, backButton);
-        inputBox.setStyle("-fx-alignment: center;");  // Center the HBox
+        inputBox.setAlignment(Pos.CENTER); // Centering button group
 
-        // Add functionality for "Back" button
-        backButton.setOnAction(e -> {
-            // Go back to the main screen
-            primaryStage.setScene(new DataStructureVisualiser().createScene(primaryStage));
-        });
+        // Event handler for "Back" button
+        backButton.setOnAction(e -> primaryStage.setScene(new DataStructureVisualiser().createScene(primaryStage)));
 
-        // Add functionality for each linked list operation button
-        appendButton.setOnAction(e -> {
-            String inputValue = inputField.getText();
-            if (!inputValue.isEmpty()) {
-                try {
-                    int value = Integer.parseInt(inputValue);
-                    linkedList.append(value);
-                    visualizeList(); // Update visualization
-                    inputField.clear();  // Clear the input field after appending
-                } catch (NumberFormatException ex) {
-                    System.out.println("Please enter a valid integer.");
-                }
-            }
-        });
+        // Linked list operation buttons
+        appendButton.setOnAction(e -> handleAppend(inputField));
+        prependButton.setOnAction(e -> handlePrepend(inputField));
+        removeByValueButton.setOnAction(e -> handleRemoveByValue(inputField));
+        insertAfterButton.setOnAction(e -> handleInsertAfter(inputField));
+        setNodeValueButton.setOnAction(e -> handleSetNodeValue(inputField));
 
-        prependButton.setOnAction(e -> {
-            String inputValue = inputField.getText();
-            if (!inputValue.isEmpty()) {
-                try {
-                    int value = Integer.parseInt(inputValue);
-                    linkedList.prepend(value);
-                    visualizeList(); // Update visualization
-                    inputField.clear();  // Clear the input field after prepending
-                } catch (NumberFormatException ex) {
-                    System.out.println("Please enter a valid integer.");
-                }
-            }
-        });
+        // Layout setup for StackPane
+        StackPane root = new StackPane();
+        root.setStyle("-fx-background-color: #3B1E54;");
 
-        removeByValueButton.setOnAction(e -> {
-            String inputValue = inputField.getText();
-            if (!inputValue.isEmpty()) {
-                try {
-                    int value = Integer.parseInt(inputValue);
-                    linkedList.removeByValue(value);
-                    visualizeList(); // Update visualization
-                    inputField.clear();  // Clear the input field after removing
-                } catch (NumberFormatException ex) {
-                    System.out.println("Please enter a valid integer.");
-                }
-            }
-        });
+        // Create a VBox to hold the main components and ensure proper centering
+        VBox contentVBox = new VBox(20);
+        contentVBox.setAlignment(Pos.CENTER); // Center the VBox
+        contentVBox.getChildren().addAll(mainVBox, centerVBox, inputBox); // Add all components
 
-        insertAfterButton.setOnAction(e -> {
-            String[] values = inputField.getText().split(",");
-            if (values.length == 2) {
-                try {
-                    int targetValue = Integer.parseInt(values[0].trim());
-                    int newValue = Integer.parseInt(values[1].trim());
-                    linkedList.insertAfter(targetValue, newValue);
-                    visualizeList(); // Update visualization
-                } catch (NumberFormatException ex) {
-                    System.out.println("Please enter valid integers.");
-                }
-                inputField.clear();  // Clear the input field after insertion
-            }
-        });
+        root.getChildren().add(contentVBox); // Add contentVBox to the root
 
-        // Corrected logic for setNodeValueButton
-        setNodeValueButton.setOnAction(e -> {
-            String[] values = inputField.getText().split(",");
-            if (values.length == 2) {
-                try {
-                    int targetValue = Integer.parseInt(values[0].trim()); // The value to find
-                    int newValue = Integer.parseInt(values[1].trim()); // The new value to set
-                    boolean result = linkedList.setNodeValue(targetValue, newValue); // Correct usage
-                    if (result) {
-                        visualizeList(); // Update visualization only if the value is successfully set
-                    } else {
-                        System.out.println("Node with value " + targetValue + " not found.");
-                    }
-                } catch (NumberFormatException ex) {
-                    System.out.println("Please enter valid integers.");
-                }
-                inputField.clear();  // Clear the input field after setting value
-            }
-        });
+        // Make sure the centerVBox is centered
+        centerVBox.setAlignment(Pos.CENTER); // Center visualization box
 
-        // Create a new AnchorPane for the layout
-        AnchorPane root = new AnchorPane();
-        root.setStyle("-fx-background-color: #3B1E54;");  // Set background color for the AnchorPane
-
-        // Add the main content VBox at the top of the AnchorPane
-        AnchorPane.setTopAnchor(mainVBox, 20.0);
-        AnchorPane.setLeftAnchor(mainVBox, 0.0);
-        AnchorPane.setRightAnchor(mainVBox, 0.0);
-        root.getChildren().add(mainVBox);
-
-        // Configure the centerVBox to fill the space and center its content
-        centerVBox.setAlignment(Pos.CENTER); // Center the VBox
-        centerVBox.setStyle("-fx-pref-height: 400; -fx-pref-width: 800;"); // Set preferred size
-        root.getChildren().add(centerVBox);
-        AnchorPane.setTopAnchor(centerVBox, 100.0); // Offset for centering
-        AnchorPane.setLeftAnchor(centerVBox, 0.0);
-        AnchorPane.setRightAnchor(centerVBox, 0.0);
-        AnchorPane.setBottomAnchor(centerVBox, 100.0); // Allow vertical centering
-
-        // Add the input box at the bottom of the AnchorPane
-        AnchorPane.setBottomAnchor(inputBox, 20.0);
-        AnchorPane.setLeftAnchor(inputBox, 0.0);
-        AnchorPane.setRightAnchor(inputBox, 0.0);
-        root.getChildren().add(inputBox);  // Add the input box to the root AnchorPane
-
-        // Create the scene with the specified dimensions
-        Scene scene = new Scene(root, 1270, 660); // Set window size to 1270x660
-
-        return scene;
+        return new Scene(root, 1270, 660);
     }
 
-    // Method to style buttons consistently
+    // Event handlers for buttons
+    private void handleAppend(TextField inputField) {
+        String inputValue = inputField.getText();
+        if (!inputValue.isEmpty()) {
+            try {
+                int value = Integer.parseInt(inputValue);
+                linkedList.addLast(value);
+                visualizeList();
+                inputField.clear();
+                clearErrorMessage(); // Clear error message on successful operation
+            } catch (NumberFormatException ex) {
+                setErrorMessage("Please enter a valid integer.");
+            } catch (IllegalArgumentException ex) {
+                setErrorMessage("Index Out of Range!"); // Set error message for IllegalArgumentException
+            }
+        }
+    }
+
+    private void handlePrepend(TextField inputField) {
+        String inputValue = inputField.getText();
+        if (!inputValue.isEmpty()) {
+            try {
+                int value = Integer.parseInt(inputValue);
+                linkedList.addFirst(value);
+                visualizeList();
+                inputField.clear();
+                clearErrorMessage(); // Clear error message on successful operation
+            } catch (NumberFormatException ex) {
+                setErrorMessage("Please enter a valid integer.");
+            } catch (IllegalArgumentException ex) {
+                setErrorMessage("Index Out of Range!"); // Set error message for IllegalArgumentException
+            }
+        }
+    }
+
+    private void handleRemoveByValue(TextField inputField) {
+        String inputValue = inputField.getText();
+        if (!inputValue.isEmpty()) {
+            try {
+                int value = Integer.parseInt(inputValue);
+                linkedList.removeByValue(value);
+                visualizeList();
+                inputField.clear();
+                clearErrorMessage(); // Clear error message on successful operation
+            } catch (NumberFormatException ex) {
+                setErrorMessage("Please enter a valid integer.");
+            } catch (IllegalArgumentException ex) {
+                setErrorMessage("Index Out of Range!"); // Set error message for IllegalArgumentException
+            }
+        }
+    }
+
+    private void handleInsertAfter(TextField inputField) {
+        String[] values = inputField.getText().split(",");
+        if (values.length == 2) {
+            try {
+                int targetValue = Integer.parseInt(values[0].trim());
+                int newValue = Integer.parseInt(values[1].trim());
+                LinkedList.Node<Integer> targetNode = linkedList.findNodeByValue(targetValue);
+                if (targetNode != null) {
+                    linkedList.addNext(newValue, targetNode.getId());
+                    visualizeList();
+                } else {
+                    setErrorMessage("Target value not found.");
+                }
+            } catch (NumberFormatException ex) {
+                setErrorMessage("Please enter valid integers.");
+            } catch (IllegalArgumentException ex) {
+                setErrorMessage("Index Out of Range!"); // Set error message for IllegalArgumentException
+            }
+            inputField.clear();
+        }
+    }
+
+    private void handleSetNodeValue(TextField inputField) {
+        String[] values = inputField.getText().split(",");
+        if (values.length == 2) {
+            try {
+                int targetValue = Integer.parseInt(values[0].trim());
+                int newValue = Integer.parseInt(values[1].trim());
+                LinkedList.Node<Integer> targetNode = linkedList.findNodeByValue(targetValue);
+                if (targetNode != null) {
+                    targetNode.setData(newValue); // Assuming `setData` exists in Node
+                    visualizeList();
+                } else {
+                    setErrorMessage("Node with value " + targetValue + " not found.");
+                }
+            } catch (NumberFormatException ex) {
+                setErrorMessage("Please enter valid integers.");
+            } catch (IllegalArgumentException ex) {
+                setErrorMessage("Index Out of Range!"); // Set error message for IllegalArgumentException
+            }
+            inputField.clear();
+        }
+    }
+
+    // Button styling
     private void styleButton(Button button) {
         button.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-size: 16px; " +
                 "-fx-font-weight: bold; -fx-padding: 10px 20px;");
     }
 
-    // Visualize the linked list by adding rectangles representing linked list nodes
+    // Visualize the linked list
     private void visualizeList() {
-        centerVBox.getChildren().clear(); // Clear current list visualization
-
-        // Create a new HBox for the linked list nodes
-        HBox tempListBox = new HBox(5); // Temporary HBox to hold nodes
-        tempListBox.setAlignment(Pos.CENTER); // Center nodes within the HBox
-        LinkedList.Node current = linkedList.head; // Access head node of linked list
-
-        while (current != null) {
-            int value = current.value;
-
-            // Create rectangle for node representation
-            Rectangle rect = new Rectangle(100, 50); // Width and height of rectangle
-            rect.setFill(Color.web("#D4BEE4")); // Node color
-
-            // Text for node value
+        centerVBox.getChildren().clear();
+        HBox tempListBox = new HBox(5);
+        tempListBox.setAlignment(Pos.CENTER); // Centering the linked list visualization
+        for (LinkedList.Node<Integer> node : linkedList) {
+            int value = node.getData();
+            Rectangle rect = new Rectangle(100, 50);
+            rect.setFill(Color.web("#D4BEE4"));
             Text nodeText = new Text(String.valueOf(value));
             nodeText.setFill(Color.web("#3B1E54"));
             nodeText.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
-
-            // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane();
             stackPane.getChildren().addAll(rect, nodeText);
-            tempListBox.getChildren().add(stackPane); // Add node to temporary HBox
+            tempListBox.getChildren().add(stackPane);
 
-            // Draw line between nodes
-            if (current.next != null) {
-                Line line = new Line(0, 25, 30, 25); // Line positioned vertically between nodes
+            if (node.getNext() != null) {
+                Line line = new Line(0, 25, 30, 25);
                 line.setStroke(Color.web("#EEEEEE"));
                 line.setStrokeWidth(2);
-                tempListBox.getChildren().add(line); // Add line after the current node
+                tempListBox.getChildren().add(line);
             }
-
-            current = current.next; // Move to the next node
         }
+        centerVBox.getChildren().add(tempListBox);
+    }
 
-        // Add the tempListBox to the centerVBox
-        centerVBox.getChildren().add(tempListBox); // This automatically centers it vertically
+    // Set error message
+    private void setErrorMessage(String message) {
+        errorMessage.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+        errorMessage.setFill(Color.RED);
+    }
+
+    // Clear error message
+    private void clearErrorMessage() {
+        errorMessage.setText(""); // Clear the text for no error
     }
 }

@@ -9,43 +9,49 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class Queue<T> implements Iterable<T>, ArrayBased<T> {
+public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
     private T[] array;
     private int front = -1;
     private int rear = 0;
-    public Queue(int size) {
+    private boolean isWrapped = false;
+    private boolean specialCaseQueueEmpty = false;
+    public CircularQueue(int size) {
         if (size < 1) {
             throw new IllegalArgumentException("Size cannot be less than one!");
         }
         array = (T[]) new Object[size];
     }
     public void push(T data) throws OverflowException {
-        if (front == array.length - 1) {
+        if ((!isWrapped && ((rear == 0) && (front == (array.length - 1)))) || (isWrapped && (front == (rear - 1)))) {
             throw new OverflowException();
         }
-        array[++front] = data;
+        if (front == array.length - 1) {
+            array[front = 0] = data;
+            isWrapped = !isWrapped;
+            specialCaseQueueEmpty = false;
+        } else {
+            array[++front] = data;
+        }
     }
     public T pop() throws UnderflowException {
-        if (front < rear) {
+        if ((isWrapped && (((rear == 0) && (front == (array.length - 1))))) || (!isWrapped && (rear == (front + 1)))) {
             throw new UnderflowException();
+        }
+        if (rear == array.length - 1) {
+            specialCaseQueueEmpty = front == rear;
+            isWrapped = !isWrapped;
+            rear = 0;
+            return array[array.length -1];
         }
         return array[rear++];
     }
-    public T peek() throws UnderflowException {
-        if (front < rear) {
-            throw new UnderflowException();
-        }
-        return array[rear];
-    }
-
     private T[] getNulledArray() {
         T[] nulledArray = (T[]) new Object[array.length];
         for (int i = 0; i < array.length; i++) {
-            nulledArray[i] = i >= rear && i <= front ? array[i] : null;
+            nulledArray[i] = specialCaseQueueEmpty ? null : (isWrapped ? (((i <= front) || (i >= rear)) ? array[i] : null) : (((i <= front) && (i >= rear)) ? array[i] : null));
         }
         return nulledArray;
     }
-
     @NotNull
     @Override
     public Iterator<T> iterator() {
@@ -63,44 +69,35 @@ public class Queue<T> implements Iterable<T>, ArrayBased<T> {
     }
 
     @Override
-    protected Queue<T> clone() {
-        Queue<T> queue = new Queue<>(array.length);
-        queue.array = array.clone();
-        queue.front = front;
-        queue.rear = rear;
-        return queue;
+    protected CircularQueue<T> clone() {
+        CircularQueue<T> circularQueue = new CircularQueue<>(array.length);
+        circularQueue.array = array.clone();
+        circularQueue.front = front;
+        circularQueue.rear = rear;
+        circularQueue.isWrapped = isWrapped;
+        circularQueue.specialCaseQueueEmpty = specialCaseQueueEmpty;
+        return circularQueue;
     }
 
     @Override
     public String getIndexState() {
         return "front : " + front + "\n" +
                 "rear : " + rear + "\n" +
+                "isWrapped : " + isWrapped + "\n" +
                 "array : " + array;
     }
 
     @Override
     public String getIndexStateAfterPop() throws UnderflowException {
-        Queue<T> clone = clone();
+        CircularQueue<T> clone = clone();
         clone.pop();
         return clone.getIndexState();
     }
 
     @Override
     public String getIndexStateAfterPush(T data) throws OverflowException {
-        Queue<T> clone = clone();
+        CircularQueue<T> clone = clone();
         clone.push(data);
         return clone.getIndexState();
-    }
-
-    public int getRear() {
-        return rear;
-    }
-
-    public int getFront() {
-        return front;
-    }
-
-    public Object[] getArray() {
-        return array;
     }
 }

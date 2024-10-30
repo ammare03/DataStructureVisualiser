@@ -1,44 +1,26 @@
 package com.example.datastructurevisualiser;
 
-import datastructures.nonlinnear.BinaryTree;
-import datastructures.nonlinnear.BinaryTree.Node;
-import datastructures.nonlinnear.Traversable;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import datastructures.BinaryTree;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+public class VisualiseBinarySearchTree {
 
-public class VisualiseBinaryTree {
-
-    private BinaryTree<String> binaryTree;
+    private BinaryTree binaryTree = new BinaryTree();
     private Text traversalResultText = new Text();
     private AnchorPane treePane = new AnchorPane(); // Pane to display the tree structure
-
-    private TextField inputField = new TextField();
-
-    private Button traverseNextButton = new Button("Traverse Next");
-    private Button setRootButton = new Button("Set Root");
-
-    private final Map<UUID, Circle> nodes = new HashMap<>();
 
     public Scene createScene(Stage primaryStage) {
         // Title text
@@ -51,44 +33,50 @@ public class VisualiseBinaryTree {
         traversalResultText.setFill(Color.web("#EEEEEE"));
 
         // Set up TextField for user input
+        TextField inputField = new TextField();
         inputField.setPromptText("Enter value");
         inputField.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-size: 16px; -fx-padding: 10px; -fx-pref-width: 200px;");
 
         // Create buttons for tree operations
+        Button insertButton = new Button("Insert");
         Button inorderButton = new Button("Inorder");
         Button preorderButton = new Button("Preorder");
         Button postorderButton = new Button("Postorder");
         Button backButton = new Button("Back");
 
-        traverseNextButton.setDisable(true);
-
         // Style buttons
+        styleButton(insertButton);
         styleButton(inorderButton);
         styleButton(preorderButton);
         styleButton(postorderButton);
         styleButton(backButton);
 
-        styleButton(setRootButton);
-        styleButton(traverseNextButton);
-
         // Set up HBox for input field and buttons
         HBox inputBox = new HBox(10);
-        inputBox.getChildren().addAll(setRootButton, inputField, inorderButton, preorderButton, postorderButton, backButton, traverseNextButton);
+        inputBox.getChildren().addAll(inputField, insertButton, inorderButton, preorderButton, postorderButton, backButton);
         inputBox.setStyle("-fx-alignment: center;");
 
         // "Back" button functionality
         backButton.setOnAction(e -> primaryStage.setScene(new DataStructureVisualiser().createScene(primaryStage)));
 
         // Button actions
-
-        setRootButton.setOnAction(_ -> {
-            binaryTree = new BinaryTree<>(inputField.getText());
-            visualizeTree();
+        insertButton.setOnAction(e -> {
+            String inputValue = inputField.getText();
+            if (!inputValue.isEmpty()) {
+                try {
+                    int value = Integer.parseInt(inputValue);
+                    binaryTree.insert(value);
+                    inputField.clear();
+                    visualizeTree(); // Update tree visualization after insertion
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a valid integer.");
+                }
+            }
         });
 
-        inorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.INORDER));
-        preorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.PREORDER));
-        postorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.POSTORDER));
+        inorderButton.setOnAction(e -> traversalResultText.setText("Inorder: " + binaryTree.inorder()));
+        preorderButton.setOnAction(e -> traversalResultText.setText("Preorder: " + binaryTree.preorder()));
+        postorderButton.setOnAction(e -> traversalResultText.setText("Postorder: " + binaryTree.postorder()));
 
         // VBox layout to center all components with consistent spacing
         VBox mainVBox = new VBox(10); // Set spacing between elements
@@ -113,30 +101,8 @@ public class VisualiseBinaryTree {
         primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> visualizeTree());
         primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> visualizeTree());
 
-
         // Set the scene size to 1270x660
         return new Scene(root, 1270, 660); // Updated window size
-    }
-
-    private void initializeTraversal(Traversable.Traversal traversal) {
-        traverseNextButton.setDisable(false);
-        traversalResultText.setText(traversal.name() + ':');
-        Iterator<Node<String>> i = binaryTree.iterator(traversal);
-        traverseNextButton.setOnAction(_ -> {
-            if (i.hasNext()) {
-                Node<String> node = i.next();
-                traversalResultText.setText(traversalResultText.getText() + " " + node);
-                nodes.forEach((id, circle) -> {
-                    if (id.equals(node.getId())) {
-                        circle.setStroke(Color.YELLOW);
-                    } else {
-                        circle.setStroke(Color.web("#3B1E54"));
-                    }
-                });
-            } else {
-                traverseNextButton.setDisable(true);
-            }
-        });
     }
 
     // Method to style buttons
@@ -149,10 +115,10 @@ public class VisualiseBinaryTree {
         treePane.getChildren().clear(); // Clear previous tree display
 
         // Only visualize if the tree has nodes
-        if (binaryTree.getRoot() != null) {
+        if (binaryTree.root != null) {
             double treePaneWidth = treePane.getWidth();
             double centerX = (treePane.getScene().getWidth() - treePaneWidth) / 2; // Use scene width for dynamic centering
-            displayTree(binaryTree.getRoot(), centerX + treePaneWidth / 2, 20, 150, binaryTree.getRoot().getId()); // Start visualization at the calculated center position
+            displayTree(binaryTree.root, centerX + treePaneWidth / 2, 20, 150); // Start visualization at the calculated center position
         }
 
         // Center the treePane itself within the main VBox
@@ -162,13 +128,13 @@ public class VisualiseBinaryTree {
     }
 
     // Recursive method to display the binary tree with accurate positioning and lines
-    private void displayTree(BinaryTree.Node<String> node, double x, double y, double offset, UUID id) {
+    private void displayTree(BinaryTree.Node node, double x, double y, double offset) {
         if (node == null) return;
 
         // Create a Circle and Text for the current node
         Circle circle = new Circle(20, Color.web("#D4BEE4"));
         circle.setStroke(Color.web("#3B1E54"));
-        Text text = new Text(String.valueOf(node.getData()));
+        Text text = new Text(String.valueOf(node.value));
         text.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         text.setFill(Color.web("#3B1E54"));
 
@@ -180,51 +146,22 @@ public class VisualiseBinaryTree {
         // Calculate child node positions and adjust line length
         double childY = y + 80; // Increase vertical spacing between levels
 
-        if (node.getLeft() != null) {
+        if (node.left != null) {
             double leftX = x - offset * 1.25; // Increase spacing by 25%
             Line leftLine = new Line(x, y + 20, leftX, childY - 15); // Line from parent to left child
             leftLine.setStroke(Color.web("#D4BEE4")); // Change line color
             leftLine.setStrokeWidth(2.5); // Set line thickness
             treePane.getChildren().add(leftLine); // Add line to treePane
-            displayTree(node.getLeft(), leftX, childY, offset * 0.75, node.getLeft().getId()); // Recursive call for left child with reduced offset
+            displayTree(node.left, leftX, childY, offset * 0.75); // Recursive call for left child with reduced offset
         }
 
-        if (node.getRight() != null) {
+        if (node.right != null) {
             double rightX = x + offset * 1.25; // Increase spacing by 25%
             Line rightLine = new Line(x, y + 20, rightX, childY - 15); // Line from parent to right child
             rightLine.setStroke(Color.web("#D4BEE4")); // Change line color
             rightLine.setStrokeWidth(2.5); // Set line thickness
             treePane.getChildren().add(rightLine); // Add line to treePane
-            displayTree(node.getRight(), rightX, childY, offset * 0.75, node.getRight().getId()); // Recursive call for right child with reduced offset
+            displayTree(node.right, rightX, childY, offset * 0.75); // Recursive call for right child with reduced offset
         }
-
-        circle.setOnMouseClicked(t -> {
-            MenuItem assignLeft = new MenuItem("Assign Left");
-            MenuItem assignRight = new MenuItem("Assign Right");
-            MenuItem removeNode = new MenuItem("Remove Node");
-            assignLeft.setOnAction(_ -> {
-                binaryTree.assignLeft(inputField.getText().trim(), id);
-                inputField.clear();
-                visualizeTree();
-            });
-            assignRight.setOnAction(_ -> {
-                binaryTree.assignRight(inputField.getText().trim(), id);
-                inputField.clear();
-                visualizeTree();
-            });
-            removeNode.setOnAction(_ -> {
-                binaryTree.remove(id);
-                inputField.clear();
-                visualizeTree();
-            });
-            if(t.getButton().toString().equals("SECONDARY"))
-                new ContextMenu(
-                        assignLeft,
-                        assignRight,
-                        removeNode
-                ).show(circle,t.getScreenX(),t.getSceneY());
-        });
-
-        nodes.put(id, circle);
     }
 }
