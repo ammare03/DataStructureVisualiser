@@ -26,7 +26,7 @@ public class BinaryTree<T> implements Traversable<Node<T>> {
         return newId;
     }
 
-    public UUID assignLeft(T data, UUID id) throws OverflowException {
+    public UUID assignLeft(T data, UUID id) {
         UUID newId = UUID.randomUUID();
         for (Node<T> i : this) {
             if (i.id.equals(id)) {
@@ -37,7 +37,7 @@ public class BinaryTree<T> implements Traversable<Node<T>> {
         throw new IllegalArgumentException("No node found with given id");
     }
 
-    public UUID assignRight(T data, UUID id) throws OverflowException {
+    public UUID assignRight(T data, UUID id) {
         UUID newId = UUID.randomUUID();
         for (Node<T> i : this) {
             if (i.id.equals(id)) {
@@ -49,9 +49,10 @@ public class BinaryTree<T> implements Traversable<Node<T>> {
     }
 
     public void remove(UUID id) {
-        Iterator<Node<T>> iterator = iterator();
-        while(iterator.hasNext()) {
-            Node<T> i = iterator.next();
+        if(root.id.equals(id)) {
+            throw new UnsupportedOperationException("Cannot remove the root!");
+        }
+        for (Node<T> i : this) {
             if (i.left != null && i.left.id.equals(id)) {
                 i.left = null;
                 return;
