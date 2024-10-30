@@ -1,6 +1,5 @@
 package com.example.datastructurevisualiser;
 
-import datastructures.linnear.CircularQueue;
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
 import javafx.geometry.Pos;
@@ -17,6 +16,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import datastructures.linnear.Stack;
+
+import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
 
 public class VisualiseStack {
 
@@ -66,7 +67,7 @@ public class VisualiseStack {
                 } catch (NumberFormatException ex) {
                     System.out.println("Please enter a valid integer.");
                 } catch (OverflowException oe) {
-                    new Alert(Alert.AlertType.ERROR, oe.getMessage(), ButtonType.OK).show();
+                    alertError(oe);
                 }
             }
         });
@@ -77,7 +78,7 @@ public class VisualiseStack {
                 stack.pop();
                 visualizeStack(); // Update visualization
             } catch (UnderflowException ue) {
-                new Alert(Alert.AlertType.ERROR, ue.getMessage(), ButtonType.OK).show();
+                alertError(ue);
             }
         });
 

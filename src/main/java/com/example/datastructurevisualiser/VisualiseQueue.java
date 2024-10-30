@@ -18,6 +18,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
+
 public class VisualiseQueue {
 
     private Queue<String> queue;
@@ -78,7 +80,7 @@ public class VisualiseQueue {
                     visualizeQueue(); // Update visualization
                     inputField.clear();
                 } catch (OverflowException oe) {
-                    new Alert(Alert.AlertType.ERROR, oe.getMessage(), ButtonType.OK).show();
+                    alertError(oe);
                 }
             }
         });
@@ -89,7 +91,7 @@ public class VisualiseQueue {
                 queue.dequeue();
                 visualizeQueue();
             } catch (UnderflowException ue) {
-                new Alert(Alert.AlertType.ERROR, ue.getMessage(), ButtonType.OK).show();
+                alertError(ue);
             }
         });
 

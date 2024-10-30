@@ -17,6 +17,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
 import static com.example.datastructurevisualiser.DataStructureVisualiser.getInputFromUser;
 
 public class VisualiseLinkedList {
@@ -167,7 +168,7 @@ public class VisualiseLinkedList {
                             linkedList.remove(current.getId());
                             visualizeList();
                         } catch (UnderflowException ue) {
-                            new Alert(Alert.AlertType.ERROR, ue.getMessage(), ButtonType.OK).show();
+                            alertError(ue);
                         }
                     });
                     new ContextMenu(

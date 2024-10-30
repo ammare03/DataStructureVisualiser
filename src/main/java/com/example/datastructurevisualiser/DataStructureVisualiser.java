@@ -54,26 +54,26 @@ public class DataStructureVisualiser extends Application {
             try {
                 getInputFromUser("Enter stack capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseStack(Integer.parseInt(capacity)).createScene(primaryStage)));
             } catch (IllegalArgumentException iae) {
-                new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK).show();
+                alertError(iae);
             }
         });
         queueButton.setOnAction(_ -> {
             try {
                 getInputFromUser("Enter queue capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseQueue(Integer.parseInt(capacity)).createScene(primaryStage)));
             } catch (IllegalArgumentException iae) {
-                new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK);
+                alertError(iae);
             }
         });
         circularQueueButton.setOnAction(_ -> {
             try {
                 getInputFromUser("Enter circular queue capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseCircularQueue(Integer.parseInt(capacity)).createScene(primaryStage)));
             } catch (IllegalArgumentException iae) {
-                new Alert(Alert.AlertType.ERROR, iae.getMessage(), ButtonType.OK);
+                alertError(iae);
             }
         });
         linkedListButton.setOnAction(_ -> getInputFromUser("Enter head").ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head).createScene(primaryStage))));
         binarySearchTreeButton.setOnAction(_ -> primaryStage.setScene(new VisualiseBinarySearchTree().createScene(primaryStage)));
-        binaryTreeButton.setOnAction(_ -> primaryStage.setScene(new VisualiseBinaryTree().createScene(primaryStage)));
+        binaryTreeButton.setOnAction(_ -> getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinaryTree(root).createScene(primaryStage))));
 
         // Create an HBox to hold the buttons horizontally with spacing
         HBox hbox = new HBox(20);  // Horizontal spacing between buttons
@@ -95,6 +95,11 @@ public class DataStructureVisualiser extends Application {
         } else {
             return Optional.empty();
         }
+    }
+
+    public static void alertError(Exception exception) {
+        new Alert(Alert.AlertType.ERROR, exception.getMessage(), ButtonType.OK).show();
+
     }
 
     // Helper method to create styled buttons
