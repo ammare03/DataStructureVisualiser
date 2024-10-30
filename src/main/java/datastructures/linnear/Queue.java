@@ -19,15 +19,15 @@ public class Queue<T> implements Iterable<T>, ArrayBased<T> {
         }
         array = (T[]) new Object[size];
     }
-    public void push(T data) throws OverflowException {
+    public void enqueue(T data) throws OverflowException {
         if (front == array.length - 1) {
-            throw new OverflowException();
+            throw new OverflowException("Queue Overflow!");
         }
         array[++front] = data;
     }
-    public T pop() throws UnderflowException {
+    public T dequeue() throws UnderflowException {
         if (front < rear) {
-            throw new UnderflowException();
+            throw new UnderflowException("Queue Underflow!");
         }
         return array[rear++];
     }
@@ -75,32 +75,20 @@ public class Queue<T> implements Iterable<T>, ArrayBased<T> {
     public String getIndexState() {
         return "front : " + front + "\n" +
                 "rear : " + rear + "\n" +
-                "array : " + array;
+                "array : " + Arrays.toString(array);
     }
 
     @Override
     public String getIndexStateAfterPop() throws UnderflowException {
         Queue<T> clone = clone();
-        clone.pop();
+        clone.dequeue();
         return clone.getIndexState();
     }
 
     @Override
     public String getIndexStateAfterPush(T data) throws OverflowException {
         Queue<T> clone = clone();
-        clone.push(data);
+        clone.enqueue(data);
         return clone.getIndexState();
-    }
-
-    public int getRear() {
-        return rear;
-    }
-
-    public int getFront() {
-        return front;
-    }
-
-    public Object[] getArray() {
-        return array;
     }
 }

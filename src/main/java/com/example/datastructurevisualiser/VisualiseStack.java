@@ -4,8 +4,7 @@ import exceptions.OverflowException;
 import exceptions.UnderflowException;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -18,11 +17,16 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import datastructures.linnear.Stack;
 
+import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
+
 public class VisualiseStack {
 
-    private Stack<Integer> stack = new Stack<>(5); // Initialize the Stack instance
+    private Stack<String> stack; // Initialize the Stack instance
     private VBox stackBox = new VBox(10); // Change back to VBox for vertical alignment
-    private Text errorMessage = new Text(""); // Text node for displaying error messages
+
+    public VisualiseStack(int capacity) {
+        stack = new Stack<>(capacity);
+    }
 
     public Scene createScene(Stage primaryStage) {
         // Title text
@@ -30,14 +34,10 @@ public class VisualiseStack {
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
         title.setFill(Color.web("#EEEEEE"));
 
-        // Configure error message text
-        errorMessage.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
-        errorMessage.setFill(Color.RED);
-
-        // Main layout VBox for title and error message
-        VBox mainVBox = new VBox(10);
+        // Main layout VBox for title
+        VBox mainVBox = new VBox(20);
         mainVBox.setStyle("-fx-background-color: #3B1E54; -fx-alignment: center;");
-        mainVBox.getChildren().addAll(title, errorMessage);
+        mainVBox.getChildren().add(title);
 
         // TextField for user input
         TextField inputField = new TextField();
@@ -58,18 +58,16 @@ public class VisualiseStack {
 
         // Event handler for "Push" button
         pushButton.setOnAction(e -> {
-            String inputValue = inputField.getText();
+            String inputValue = inputField.getText().trim();
             if (!inputValue.isEmpty()) {
                 try {
-                    int value = Integer.parseInt(inputValue);
-                    stack.push(value);
+                    stack.push(inputValue);
                     visualizeStack(); // Update visualization
-                    errorMessage.setText(""); // Clear any previous error message
                     inputField.clear();
                 } catch (NumberFormatException ex) {
                     System.out.println("Please enter a valid integer.");
                 } catch (OverflowException oe) {
-                    errorMessage.setText("Stack Overflow!"); // Display overflow error
+                    alertError(oe);
                 }
             }
         });
@@ -79,9 +77,8 @@ public class VisualiseStack {
             try {
                 stack.pop();
                 visualizeStack(); // Update visualization
-                errorMessage.setText(""); // Clear any previous error message
-            } catch (UnderflowException ex) {
-                errorMessage.setText("Stack Underflow!"); // Display underflow error
+            } catch (UnderflowException ue) {
+                alertError(ue);
             }
         });
 
@@ -94,7 +91,7 @@ public class VisualiseStack {
         AnchorPane root = new AnchorPane();
         root.setStyle("-fx-background-color: #3B1E54;");
 
-        // Add mainVBox (title and error message) to top of the AnchorPane
+        // Add mainVBox (title) to top of the AnchorPane
         AnchorPane.setTopAnchor(mainVBox, 20.0);
         AnchorPane.setLeftAnchor(mainVBox, 0.0);
         AnchorPane.setRightAnchor(mainVBox, 0.0);
@@ -112,6 +109,8 @@ public class VisualiseStack {
         AnchorPane.setLeftAnchor(inputBox, 0.0);
         AnchorPane.setRightAnchor(inputBox, 0.0);
         root.getChildren().add(inputBox);
+
+        visualizeStack();
 
         // Create and return scene
         return new Scene(root, 1040, 600);
@@ -136,7 +135,7 @@ public class VisualiseStack {
             rect.setStrokeWidth(2);
 
             // Text displaying the value on the node
-            Text valueText = new Text(String.valueOf(value));
+            Text valueText = new Text(value);
             valueText.setFill(Color.web("#3B1E54"));
             valueText.setFont(Font.font("Verdana", FontWeight.BOLD, 18));
 

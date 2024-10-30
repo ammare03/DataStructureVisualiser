@@ -1,8 +1,13 @@
 package com.example.datastructurevisualiser;
 
+import datastructures.nonlinnear.BaseTree;
+import datastructures.nonlinnear.BinarySearchTree;
+import datastructures.nonlinnear.Traversable;
+import exceptions.UnderflowException;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -14,13 +19,31 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import datastructures.BinaryTree;
+import jdk.jshell.spi.ExecutionControl;
+import jdk.jshell.spi.ExecutionControl.NotImplementedException;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+
+import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
+import static com.example.datastructurevisualiser.DataStructureVisualiser.getInputFromUser;
 
 public class VisualiseBinarySearchTree {
+    Scene scene;
 
-    private BinaryTree binaryTree = new BinaryTree();
+    private BinarySearchTree<String> binarySearchTree;
     private Text traversalResultText = new Text();
     private AnchorPane treePane = new AnchorPane(); // Pane to display the tree structure
+
+    private Button traverseNextButton = new Button("Traverse Next");
+
+    private final Map<UUID, Circle> nodes = new HashMap<>();
+
+    public VisualiseBinarySearchTree(String root) {
+        binarySearchTree = new BinarySearchTree<>(root);
+    }
 
     public Scene createScene(Stage primaryStage) {
         // Title text
@@ -32,17 +55,14 @@ public class VisualiseBinarySearchTree {
         traversalResultText.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
         traversalResultText.setFill(Color.web("#EEEEEE"));
 
-        // Set up TextField for user input
-        TextField inputField = new TextField();
-        inputField.setPromptText("Enter value");
-        inputField.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-size: 16px; -fx-padding: 10px; -fx-pref-width: 200px;");
-
         // Create buttons for tree operations
         Button insertButton = new Button("Insert");
         Button inorderButton = new Button("Inorder");
         Button preorderButton = new Button("Preorder");
         Button postorderButton = new Button("Postorder");
         Button backButton = new Button("Back");
+
+        traverseNextButton.setDisable(true);
 
         // Style buttons
         styleButton(insertButton);
@@ -51,9 +71,11 @@ public class VisualiseBinarySearchTree {
         styleButton(postorderButton);
         styleButton(backButton);
 
+        styleButton(traverseNextButton);
+
         // Set up HBox for input field and buttons
         HBox inputBox = new HBox(10);
-        inputBox.getChildren().addAll(inputField, insertButton, inorderButton, preorderButton, postorderButton, backButton);
+        inputBox.getChildren().addAll(insertButton, inorderButton, preorderButton, postorderButton, traverseNextButton, backButton);
         inputBox.setStyle("-fx-alignment: center;");
 
         // "Back" button functionality
@@ -61,22 +83,19 @@ public class VisualiseBinarySearchTree {
 
         // Button actions
         insertButton.setOnAction(e -> {
-            String inputValue = inputField.getText();
-            if (!inputValue.isEmpty()) {
-                try {
-                    int value = Integer.parseInt(inputValue);
-                    binaryTree.insert(value);
-                    inputField.clear();
-                    visualizeTree(); // Update tree visualization after insertion
-                } catch (NumberFormatException ex) {
-                    System.out.println("Please enter a valid integer.");
-                }
+            try {
+                DataStructureVisualiser.getInputFromUser("Enter data").ifPresent(data -> {
+                    binarySearchTree.insert(data);
+                    visualizeTree(scene); // Update tree visualization after insertion
+                });
+            } catch (NumberFormatException ex) {
+                System.out.println("Please enter a valid integer.");
             }
         });
 
-        inorderButton.setOnAction(e -> traversalResultText.setText("Inorder: " + binaryTree.inorder()));
-        preorderButton.setOnAction(e -> traversalResultText.setText("Preorder: " + binaryTree.preorder()));
-        postorderButton.setOnAction(e -> traversalResultText.setText("Postorder: " + binaryTree.postorder()));
+        inorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.INORDER));
+        preorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.PREORDER));
+        postorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.POSTORDER));
 
         // VBox layout to center all components with consistent spacing
         VBox mainVBox = new VBox(10); // Set spacing between elements
@@ -97,12 +116,16 @@ public class VisualiseBinarySearchTree {
         AnchorPane.setBottomAnchor(mainVBox, 20.0); // Maintain 10 spacing at the bottom from the inputBox
         root.getChildren().add(mainVBox);
 
-        // Add a listener to adjust the position of the tree when the window is resized
-        primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> visualizeTree());
-        primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> visualizeTree());
-
         // Set the scene size to 1270x660
-        return new Scene(root, 1270, 660); // Updated window size
+        scene = new Scene(root, 1270, 660);
+
+        // Add a listener to adjust the position of the tree when the window is resized
+        primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> visualizeTree(scene));
+        primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> visualizeTree(scene));
+
+        visualizeTree(scene);
+
+        return scene; // Updated window size
     }
 
     // Method to style buttons
@@ -110,31 +133,54 @@ public class VisualiseBinarySearchTree {
         button.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10px 20px;");
     }
 
+    private void initializeTraversal(Traversable.Traversal traversal) {
+        nodes.values().forEach(circle -> circle.setStroke(Color.web("#3B1E54")));
+        traverseNextButton.setDisable(false);
+        traversalResultText.setText(traversal.name() + ':');
+        Iterator<BaseTree.Node<String>> i = binarySearchTree.iterator(traversal);
+        traverseNextButton.setOnAction(_ -> {
+            if (i.hasNext()) {
+                BaseTree.Node<String> node = i.next();
+                traversalResultText.setText(traversalResultText.getText() + " " + node);
+                nodes.forEach((id, circle) -> {
+                    if (id.equals(node.getId())) {
+                        circle.setStroke(Color.YELLOW);
+                    } else {
+                        circle.setStroke(Color.web("#3B1E54"));
+                    }
+                });
+            } else {
+                nodes.values().forEach(circle -> circle.setStroke(Color.web("#3B1E54")));
+                traverseNextButton.setDisable(true);
+            }
+        });
+    }
+
     // Visualize the binary tree centered horizontally in the window
-    private void visualizeTree() {
+    private void visualizeTree(Scene scene) {
         treePane.getChildren().clear(); // Clear previous tree display
 
         // Only visualize if the tree has nodes
-        if (binaryTree.root != null) {
+        if (binarySearchTree.getRoot() != null) {
             double treePaneWidth = treePane.getWidth();
-            double centerX = (treePane.getScene().getWidth() - treePaneWidth) / 2; // Use scene width for dynamic centering
-            displayTree(binaryTree.root, centerX + treePaneWidth / 2, 20, 150); // Start visualization at the calculated center position
+            double centerX = (scene.getWidth() - treePaneWidth) / 2; // Use scene width for dynamic centering
+            displayTree(binarySearchTree.getRoot(), centerX + treePaneWidth / 2, 20, 150, binarySearchTree.getRoot().getId()); // Start visualization at the calculated center position
         }
 
         // Center the treePane itself within the main VBox
-        double sceneWidth = treePane.getScene().getWidth(); // Get current scene width
+        double sceneWidth = scene.getWidth(); // Get current scene width
         AnchorPane.setLeftAnchor(treePane, (sceneWidth - treePane.getWidth()) / 2);
         AnchorPane.setRightAnchor(treePane, (sceneWidth - treePane.getWidth()) / 2);
     }
 
     // Recursive method to display the binary tree with accurate positioning and lines
-    private void displayTree(BinaryTree.Node node, double x, double y, double offset) {
+    private void displayTree(BaseTree.Node<String> node, double x, double y, double offset, UUID id) {
         if (node == null) return;
 
         // Create a Circle and Text for the current node
         Circle circle = new Circle(20, Color.web("#D4BEE4"));
         circle.setStroke(Color.web("#3B1E54"));
-        Text text = new Text(String.valueOf(node.value));
+        Text text = new Text(String.valueOf(node.getData()));
         text.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         text.setFill(Color.web("#3B1E54"));
 
@@ -146,22 +192,41 @@ public class VisualiseBinarySearchTree {
         // Calculate child node positions and adjust line length
         double childY = y + 80; // Increase vertical spacing between levels
 
-        if (node.left != null) {
+        if (node.getLeft() != null) {
             double leftX = x - offset * 1.25; // Increase spacing by 25%
             Line leftLine = new Line(x, y + 20, leftX, childY - 15); // Line from parent to left child
             leftLine.setStroke(Color.web("#D4BEE4")); // Change line color
             leftLine.setStrokeWidth(2.5); // Set line thickness
             treePane.getChildren().add(leftLine); // Add line to treePane
-            displayTree(node.left, leftX, childY, offset * 0.75); // Recursive call for left child with reduced offset
+            displayTree(node.getLeft(), leftX, childY, offset * 0.75, node.getLeft().getId()); // Recursive call for left child with reduced offset
         }
 
-        if (node.right != null) {
+        if (node.getRight() != null) {
             double rightX = x + offset * 1.25; // Increase spacing by 25%
             Line rightLine = new Line(x, y + 20, rightX, childY - 15); // Line from parent to right child
             rightLine.setStroke(Color.web("#D4BEE4")); // Change line color
             rightLine.setStrokeWidth(2.5); // Set line thickness
             treePane.getChildren().add(rightLine); // Add line to treePane
-            displayTree(node.right, rightX, childY, offset * 0.75); // Recursive call for right child with reduced offset
+            displayTree(node.getRight(), rightX, childY, offset * 0.75, node.getRight().getId()); // Recursive call for right child with reduced offset
         }
+
+        nodePane.setOnMouseClicked(e -> {
+            if(e.getButton().toString().equals("SECONDARY")) {
+                MenuItem removeNode = new MenuItem("Remove node");
+                removeNode.setOnAction(_ -> {
+                    try {
+                        binarySearchTree.remove(id);
+                        visualizeTree(scene);
+                    } catch (NotImplementedException nie) {
+                        alertError(nie);
+                    }
+                });
+                new ContextMenu(
+                        removeNode
+                ).show(circle,e.getScreenX(),e.getSceneY());
+            }
+        });
+
+        nodes.put(id, circle);
     }
 }

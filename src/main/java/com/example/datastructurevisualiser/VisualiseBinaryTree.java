@@ -1,15 +1,11 @@
 package com.example.datastructurevisualiser;
 
 import datastructures.nonlinnear.BinaryTree;
-import datastructures.nonlinnear.BinaryTree.Node;
+import datastructures.nonlinnear.BaseTree.Node;
 import datastructures.nonlinnear.Traversable;
-import javafx.event.EventHandler;
+import exceptions.UnderflowException;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -27,18 +23,23 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
+import static com.example.datastructurevisualiser.DataStructureVisualiser.getInputFromUser;
+
 public class VisualiseBinaryTree {
+    Scene scene;
 
     private BinaryTree<String> binaryTree;
     private Text traversalResultText = new Text();
     private AnchorPane treePane = new AnchorPane(); // Pane to display the tree structure
 
-    private TextField inputField = new TextField();
-
     private Button traverseNextButton = new Button("Traverse Next");
-    private Button setRootButton = new Button("Set Root");
 
     private final Map<UUID, Circle> nodes = new HashMap<>();
+
+    public VisualiseBinaryTree(String root) {
+        binaryTree = new BinaryTree<>(root);
+    }
 
     public Scene createScene(Stage primaryStage) {
         // Title text
@@ -49,10 +50,6 @@ public class VisualiseBinaryTree {
         // Configure traversal result text display
         traversalResultText.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
         traversalResultText.setFill(Color.web("#EEEEEE"));
-
-        // Set up TextField for user input
-        inputField.setPromptText("Enter value");
-        inputField.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-size: 16px; -fx-padding: 10px; -fx-pref-width: 200px;");
 
         // Create buttons for tree operations
         Button inorderButton = new Button("Inorder");
@@ -68,24 +65,17 @@ public class VisualiseBinaryTree {
         styleButton(postorderButton);
         styleButton(backButton);
 
-        styleButton(setRootButton);
         styleButton(traverseNextButton);
 
         // Set up HBox for input field and buttons
         HBox inputBox = new HBox(10);
-        inputBox.getChildren().addAll(setRootButton, inputField, inorderButton, preorderButton, postorderButton, backButton, traverseNextButton);
+        inputBox.getChildren().addAll(inorderButton, preorderButton, postorderButton, traverseNextButton, backButton);
         inputBox.setStyle("-fx-alignment: center;");
 
         // "Back" button functionality
         backButton.setOnAction(e -> primaryStage.setScene(new DataStructureVisualiser().createScene(primaryStage)));
 
         // Button actions
-
-        setRootButton.setOnAction(_ -> {
-            binaryTree = new BinaryTree<>(inputField.getText());
-            visualizeTree();
-        });
-
         inorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.INORDER));
         preorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.PREORDER));
         postorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.POSTORDER));
@@ -109,16 +99,19 @@ public class VisualiseBinaryTree {
         AnchorPane.setBottomAnchor(mainVBox, 20.0); // Maintain 10 spacing at the bottom from the inputBox
         root.getChildren().add(mainVBox);
 
-        // Add a listener to adjust the position of the tree when the window is resized
-        primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> visualizeTree());
-        primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> visualizeTree());
-
-
         // Set the scene size to 1270x660
-        return new Scene(root, 1270, 660); // Updated window size
+        scene = new Scene(root, 1270, 660);
+
+        // Add a listener to adjust the position of the tree when the window is resized
+        primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> visualizeTree(scene));
+        primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> visualizeTree(scene));
+
+        visualizeTree(scene);
+        return scene; // Updated window size
     }
 
     private void initializeTraversal(Traversable.Traversal traversal) {
+        nodes.values().forEach(circle -> circle.setStroke(Color.web("#3B1E54")));
         traverseNextButton.setDisable(false);
         traversalResultText.setText(traversal.name() + ':');
         Iterator<Node<String>> i = binaryTree.iterator(traversal);
@@ -134,6 +127,7 @@ public class VisualiseBinaryTree {
                     }
                 });
             } else {
+                nodes.values().forEach(circle -> circle.setStroke(Color.web("#3B1E54")));
                 traverseNextButton.setDisable(true);
             }
         });
@@ -145,24 +139,24 @@ public class VisualiseBinaryTree {
     }
 
     // Visualize the binary tree centered horizontally in the window
-    private void visualizeTree() {
+    private void visualizeTree(Scene scene) {
         treePane.getChildren().clear(); // Clear previous tree display
 
         // Only visualize if the tree has nodes
         if (binaryTree.getRoot() != null) {
             double treePaneWidth = treePane.getWidth();
-            double centerX = (treePane.getScene().getWidth() - treePaneWidth) / 2; // Use scene width for dynamic centering
+            double centerX = (scene.getWidth() - treePaneWidth) / 2; // Use scene width for dynamic centering
             displayTree(binaryTree.getRoot(), centerX + treePaneWidth / 2, 20, 150, binaryTree.getRoot().getId()); // Start visualization at the calculated center position
         }
 
         // Center the treePane itself within the main VBox
-        double sceneWidth = treePane.getScene().getWidth(); // Get current scene width
+        double sceneWidth = scene.getWidth(); // Get current scene width
         AnchorPane.setLeftAnchor(treePane, (sceneWidth - treePane.getWidth()) / 2);
         AnchorPane.setRightAnchor(treePane, (sceneWidth - treePane.getWidth()) / 2);
     }
 
     // Recursive method to display the binary tree with accurate positioning and lines
-    private void displayTree(BinaryTree.Node<String> node, double x, double y, double offset, UUID id) {
+    private void displayTree(Node<String> node, double x, double y, double offset, UUID id) {
         if (node == null) return;
 
         // Create a Circle and Text for the current node
@@ -198,31 +192,33 @@ public class VisualiseBinaryTree {
             displayTree(node.getRight(), rightX, childY, offset * 0.75, node.getRight().getId()); // Recursive call for right child with reduced offset
         }
 
-        circle.setOnMouseClicked(t -> {
-            MenuItem assignLeft = new MenuItem("Assign Left");
-            MenuItem assignRight = new MenuItem("Assign Right");
-            MenuItem removeNode = new MenuItem("Remove Node");
-            assignLeft.setOnAction(_ -> {
-                binaryTree.assignLeft(inputField.getText().trim(), id);
-                inputField.clear();
-                visualizeTree();
-            });
-            assignRight.setOnAction(_ -> {
-                binaryTree.assignRight(inputField.getText().trim(), id);
-                inputField.clear();
-                visualizeTree();
-            });
-            removeNode.setOnAction(_ -> {
-                binaryTree.remove(id);
-                inputField.clear();
-                visualizeTree();
-            });
-            if(t.getButton().toString().equals("SECONDARY"))
+        nodePane.setOnMouseClicked(e -> {
+            if(e.getButton().toString().equals("SECONDARY")) {
+                MenuItem assignLeft = new MenuItem("Assign left");
+                MenuItem assignRight = new MenuItem("Assign right");
+                MenuItem removeNode = new MenuItem("Remove node");
+                assignLeft.setOnAction(_ -> getInputFromUser("Enter data").ifPresent(data -> {
+                    binaryTree.assignLeft(data.trim(), id);
+                    visualizeTree(scene);
+                }));
+                assignRight.setOnAction(_ ->  getInputFromUser("Enter data").ifPresent(data -> {
+                    binaryTree.assignRight(data.trim(), id);
+                    visualizeTree(scene);
+                }));
+                removeNode.setOnAction(_ -> {
+                    try {
+                        binaryTree.remove(id);
+                        visualizeTree(scene);
+                    } catch (UnderflowException ex) {
+                        alertError(ex);
+                    }
+                });
                 new ContextMenu(
                         assignLeft,
                         assignRight,
                         removeNode
-                ).show(circle,t.getScreenX(),t.getSceneY());
+                ).show(circle,e.getScreenX(),e.getSceneY());
+            }
         });
 
         nodes.put(id, circle);

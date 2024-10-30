@@ -1,6 +1,7 @@
 package datastructures.linnear;
 
 import datastructures.linnear.LinkedList.Node;
+import exceptions.UnderflowException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -11,8 +12,8 @@ import java.util.function.Consumer;
 public class LinkedList<T> implements Iterable<Node<T>> {
     Node<T> head;
 
-    public LinkedList() {
-        this.head = null;
+    public LinkedList(T head) {
+        this.head = new Node<>(UUID.randomUUID(), head, null);
     }
 
     public Node<T> get(int index) {
@@ -30,13 +31,16 @@ public class LinkedList<T> implements Iterable<Node<T>> {
         Node<T> iterator = head;
         while (!iterator.id.equals(id)) {
             iterator = iterator.next;
+            if (iterator == null) {
+                throw new IllegalArgumentException("No node found with the given id!");
+            }
         }
         return iterator;
     }
 
     public UUID add(T data, int index) {
         if (index == 0) {
-            return addFirst(data);
+            return prepend(data);
         }
         Node<T> iterator = head;
         for (int i = 0; i < index - 1; i++) {
@@ -50,36 +54,42 @@ public class LinkedList<T> implements Iterable<Node<T>> {
         return newId;
     }
 
-    public UUID addNext(T data, UUID id) {
+    public UUID addAfter(T data, UUID id) {
         Node<T> iterator = head;
         while (!iterator.id.equals(id)) {
             iterator = iterator.next;
+            if (iterator == null) {
+                throw new IllegalArgumentException("No node found with the given id!");
+            }
         }
         UUID newId = UUID.randomUUID();
         iterator.next = new Node<>(newId, data, iterator.next);
         return newId;
     }
 
-    public UUID addPrevious(T data, UUID id) {
+    public UUID addBefore(T data, UUID id) {
         if (head.id.equals(id)) {
-            return addFirst(data);
+            return prepend(data);
         }
         Node<T> iterator = head;
         while (!iterator.next.id.equals(id)) {
             iterator = iterator.next;
+            if (iterator.next == null) {
+                throw new IllegalArgumentException("No node found with the given id!");
+            }
         }
         UUID newId = UUID.randomUUID();
         iterator.next = new Node<>(newId, data, iterator.next);
         return newId;
     }
 
-    public UUID addFirst(T data) {
+    public UUID prepend(T data) {
         UUID newId = UUID.randomUUID();
         head = new Node<>(newId, data, head);
         return newId;
     }
 
-    public UUID addLast(T data) {
+    public UUID append(T data) {
         Node<T> iterator = head;
         while (iterator.next != null) {
             iterator = iterator.next;
@@ -87,6 +97,54 @@ public class LinkedList<T> implements Iterable<Node<T>> {
         UUID newId = UUID.randomUUID();
         iterator.next = new Node<>(newId, data, null);
         return newId;
+    }
+
+    public void removeHead() throws UnderflowException {
+        if (head.next == null) {
+            throw new UnderflowException("Cannot remove the only node!");
+        }
+        head = head.next;
+    }
+
+    public void removeTail() throws UnderflowException {
+        if (head.next == null) {
+            throw new UnderflowException("Cannot remove the only node!");
+        }
+        Node<T> iterator = head;
+        while (iterator.next.next != null) {
+            iterator = iterator.next;
+        }
+        iterator.next = null;
+    }
+
+    public void remove(int index) throws UnderflowException {
+        if (index == 0) {
+            removeHead();
+            return;
+        }
+        Node<T> iterator = head;
+        for (int i = 0; i < index - 1; i++) {
+            if (iterator.next == null) {
+                throw new IllegalArgumentException("Index out of range");
+            }
+            iterator = iterator.next;
+        }
+        iterator.next = iterator.next.next;
+    }
+
+    public void remove(UUID id) throws UnderflowException {
+        if (head.id.equals(id)) {
+            removeHead();
+            return;
+        }
+        Node<T> iterator = head;
+        while (!iterator.next.id.equals(id)) {
+            iterator = iterator.next;
+            if (iterator.next == null) {
+                throw new IllegalArgumentException("No node found with the given id!");
+            }
+        }
+        iterator.next = iterator.next.next;
     }
 
     @NotNull
@@ -118,45 +176,9 @@ public class LinkedList<T> implements Iterable<Node<T>> {
         return Iterable.super.spliterator();
     }
 
-    public Node<T> findNodeByValue(T targetValue) {
-        Node<T> current = head; // Start from the head of the list
-        while (current != null) { // Traverse until the end of the list
-            if (current.data.equals(targetValue)) { // Check if the current node's data matches the value
-                return current; // Return the node if found
-            }
-            current = current.next; // Move to the next node
-        }
-        return null; // Return null if the node is not found
-    }
-
-    public void removeByValue(T value) {
-        // Check if the list is empty
-        if (head == null) {
-            return; // List is empty, nothing to remove
-        }
-
-        // Check if the head node contains the value
-        if (head.data.equals(value)) {
-            head = head.next; // Remove the head node by moving the head to the next node
-            return; // Node was found and removed
-        }
-
-        // Traverse the list to find the node to remove
-        Node<T> current = head;
-        while (current.next != null) {
-            if (current.next.data.equals(value)) {
-                current.next = current.next.next; // Bypass the node with the matching value
-                return; // Node was found and removed
-            }
-            current = current.next; // Move to the next node
-        }
-
-    }
-
-
     public static class Node<T> {
         private final UUID id;
-        private T data;
+        private final T data;
         private Node<T> next;
 
         private Node(UUID id, T data, Node<T> next) {
@@ -180,10 +202,6 @@ public class LinkedList<T> implements Iterable<Node<T>> {
         @Override
         public String toString() {
             return data.toString();
-        }
-
-        public void setData(T newValue) {
-            this.data = newValue;
         }
     }
 }

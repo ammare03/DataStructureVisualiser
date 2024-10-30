@@ -20,13 +20,13 @@ public class Stack<T> implements Iterable<T>, ArrayBased<T> {
     }
     public void push(T data) throws OverflowException {
         if (top == array.length - 1) {
-            throw new OverflowException();
+            throw new OverflowException("Stack Overflow!");
         }
         array[++top] = data;
     }
     public T pop() throws UnderflowException {
         if(top == -1) {
-            throw new UnderflowException();
+            throw new UnderflowException("Stack Underflow!");
         }
         return array[top--];
     }
@@ -72,7 +72,7 @@ public class Stack<T> implements Iterable<T>, ArrayBased<T> {
     @Override
     public String getIndexState() {
         return "top : " + top + "\n" +
-                "array : " + array;
+                "array : " + Arrays.toString(array);
     }
 
     @Override
