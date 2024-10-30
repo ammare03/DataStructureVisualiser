@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class Queue<T> implements Iterable<T> {
+public class Queue<T> implements Iterable<T>, ArrayBased<T> {
     private T[] array;
     private int front = -1;
     private int rear = 0;
@@ -60,5 +60,35 @@ public class Queue<T> implements Iterable<T> {
     @Override
     public Spliterator<T> spliterator() {
         return Arrays.stream(getNulledArray()).spliterator();
+    }
+
+    @Override
+    protected Queue<T> clone() {
+        Queue<T> queue = new Queue<>(array.length);
+        queue.array = array.clone();
+        queue.front = front;
+        queue.rear = rear;
+        return queue;
+    }
+
+    @Override
+    public String getIndexState() {
+        return "front : " + front + "\n" +
+                "rear : " + rear + "\n" +
+                "array : " + array;
+    }
+
+    @Override
+    public String getIndexStateAfterPop() throws UnderflowException {
+        Queue<T> clone = clone();
+        clone.pop();
+        return clone.getIndexState();
+    }
+
+    @Override
+    public String getIndexStateAfterPush(T data) throws OverflowException {
+        Queue<T> clone = clone();
+        clone.push(data);
+        return clone.getIndexState();
     }
 }
