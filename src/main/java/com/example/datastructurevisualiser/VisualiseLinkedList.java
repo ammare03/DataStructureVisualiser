@@ -1,14 +1,13 @@
 package com.example.datastructurevisualiser;
 
+import datastructures.linnear.DoublyLinkedList;
 import datastructures.linnear.LinkedList;
+import datastructures.linnear.SinglyLinkedList;
 import exceptions.UnderflowException;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -16,8 +15,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
-import static com.example.datastructurevisualiser.Utilities.getState;
+import java.util.Optional;
+
+import static com.example.datastructurevisualiser.Utilities.*;
 
 public class VisualiseLinkedList {
 
@@ -25,8 +27,11 @@ public class VisualiseLinkedList {
     private VBox centerVBox = new VBox(); // Pane for centering the list box
     private TextArea stateTextArea = new TextArea(); // TextArea for displaying the linked list state
 
-    public VisualiseLinkedList(String head) {
-        linkedList = new LinkedList<>(head);
+    public VisualiseLinkedList(String head, Choice choice) {
+        linkedList = switch (choice) {
+            case SINGLY_LINKED_LIST -> new SinglyLinkedList<>(head);
+            case DOUBLY_LINKED_LIST -> new DoublyLinkedList<>(head);
+        };
     }
 
     public Scene createScene(Stage primaryStage) {
@@ -45,16 +50,20 @@ public class VisualiseLinkedList {
         // Create buttons for linked list operations and going back
         Button appendButton = new Button("Append");
         Button prependButton = new Button("Prepend");
+        Button addButton = new Button("Add");
+        Button removeButton = new Button("Remove");
         Button backButton = new Button("Back");
 
         // Button styles
         styleButton(appendButton);
         styleButton(prependButton);
+        styleButton(addButton);
+        styleButton(removeButton);
         styleButton(backButton);
 
         // Create an HBox for the input field and buttons
         HBox inputBox = new HBox(10);  // Horizontal spacing between components
-        inputBox.getChildren().addAll(appendButton, prependButton, backButton);
+        inputBox.getChildren().addAll(appendButton, prependButton, addButton, removeButton, backButton);
         inputBox.setStyle("-fx-alignment: center;");  // Center the HBox
 
         // Add functionality for "Back" button
@@ -72,6 +81,62 @@ public class VisualiseLinkedList {
         prependButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
             linkedList.prepend(data);
             visualizeList(); // Update visualization
+        }));
+
+        addButton.setOnAction(_ -> {
+            // Create the dialog
+            Dialog<Pair<String, String>> dialog = new Dialog<>();
+            dialog.setTitle("Input Index and Data");
+            dialog.setHeaderText("Please enter the index and data.");
+
+            // Create the grid pane for input fields
+            GridPane grid = new GridPane();
+            TextField indexField = new TextField();
+            TextField dataField = new TextField();
+            grid.add(new Label("Index:"), 0, 0);
+            grid.add(indexField, 1, 0);
+            grid.add(new Label("Data:"), 0, 1);
+            grid.add(dataField, 1, 1);
+            grid.setVgap(4);
+            grid.setHgap(4);
+
+            // Set the grid pane in the dialog
+            dialog.getDialogPane().setContent(grid);
+
+            // Add buttons to the dialog
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            // Handle the OK button action
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == ButtonType.OK) {
+                    return new Pair<>(indexField.getText(), dataField.getText());
+                }
+                return null;
+            });
+
+            // Show the dialog and wait for the response
+            Optional<Pair<String, String>> result = dialog.showAndWait();
+
+            // Process the input if the user clicked OK
+            result.ifPresent(pair -> {
+                String index = pair.getKey();
+                String data = pair.getValue();
+                try {
+                    linkedList.add(data, Integer.parseInt(index));
+                    visualizeList();
+                } catch (IllegalArgumentException e) {
+                    alertError(e);
+                }
+            });
+        });
+
+        removeButton.setOnAction(_ -> getInputFromUser("Enter index").ifPresent(index -> {
+            try {
+                linkedList.remove(Integer.parseInt(index));
+                visualizeList();
+            } catch (UnderflowException | IllegalArgumentException e) {
+                alertError(e);
+            }
         }));
 
         // Initialize TextArea for linked list state display
@@ -202,5 +267,20 @@ public class VisualiseLinkedList {
 
         // Add the tempListBox to the centerVBox
         centerVBox.getChildren().add(tempListBox); // This automatically centers it vertically
+    }
+
+    public enum Choice {
+        SINGLY_LINKED_LIST("Singly Linked List"),
+        DOUBLY_LINKED_LIST("Doubly Linked List");
+
+        private final String toString;
+
+        Choice(String toString) {
+            this.toString = toString;
+        }
+
+        public String toString() {
+            return toString;
+        }
     }
 }

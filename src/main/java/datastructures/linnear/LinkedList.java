@@ -11,11 +11,11 @@ import java.util.Spliterator;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class LinkedList<T> implements Iterable<Node<T>>, StateFull {
+public abstract class LinkedList<T> implements Iterable<Node<T>>, StateFull {
     Node<T> head;
 
     public LinkedList(T head) {
-        this.head = new Node<>(UUID.randomUUID(), head, null);
+        this.head = new Node<>(UUID.randomUUID(), head, null, null);
     }
 
     public Node<T> get(int index) {
@@ -40,120 +40,29 @@ public class LinkedList<T> implements Iterable<Node<T>>, StateFull {
         return iterator;
     }
 
-    public UUID add(T data, int index) {
-        if (index == 0) {
-            return prepend(data);
-        }
-        Node<T> iterator = head;
-        for (int i = 0; i < index - 1; i++) {
-            if (iterator.next == null) {
-                throw new IllegalArgumentException("Index out of range");
-            }
-            iterator = iterator.next;
-        }
-        UUID newId = UUID.randomUUID();
-        iterator.next = new Node<>(newId, data, iterator.next);
-        return newId;
-    }
+    public abstract UUID add(T data, int index);
 
-    public UUID addAfter(T data, UUID id) {
-        Node<T> iterator = head;
-        while (!iterator.id.equals(id)) {
-            iterator = iterator.next;
-            if (iterator == null) {
-                throw new IllegalArgumentException("No node found with the given id!");
-            }
-        }
-        UUID newId = UUID.randomUUID();
-        iterator.next = new Node<>(newId, data, iterator.next);
-        return newId;
-    }
+    public abstract UUID addAfter(T data, UUID id);
 
-    public UUID addBefore(T data, UUID id) {
-        if (head.id.equals(id)) {
-            return prepend(data);
-        }
-        Node<T> iterator = head;
-        while (!iterator.next.id.equals(id)) {
-            iterator = iterator.next;
-            if (iterator.next == null) {
-                throw new IllegalArgumentException("No node found with the given id!");
-            }
-        }
-        UUID newId = UUID.randomUUID();
-        iterator.next = new Node<>(newId, data, iterator.next);
-        return newId;
-    }
+    public abstract UUID addBefore(T data, UUID id);
 
-    public UUID prepend(T data) {
-        UUID newId = UUID.randomUUID();
-        head = new Node<>(newId, data, head);
-        return newId;
-    }
+    public abstract UUID prepend(T data);
 
-    public UUID append(T data) {
-        Node<T> iterator = head;
-        while (iterator.next != null) {
-            iterator = iterator.next;
-        }
-        UUID newId = UUID.randomUUID();
-        iterator.next = new Node<>(newId, data, null);
-        return newId;
-    }
+    public abstract UUID append(T data);
 
-    public void removeHead() throws UnderflowException {
-        if (head.next == null) {
-            throw new UnderflowException("Cannot remove the only node!");
-        }
-        head = head.next;
-    }
+    public abstract void removeHead() throws UnderflowException;
 
-    public void removeTail() throws UnderflowException {
-        if (head.next == null) {
-            throw new UnderflowException("Cannot remove the only node!");
-        }
-        Node<T> iterator = head;
-        while (iterator.next.next != null) {
-            iterator = iterator.next;
-        }
-        iterator.next = null;
-    }
+    public abstract void removeTail() throws UnderflowException;
 
-    public void remove(int index) throws UnderflowException {
-        if (index == 0) {
-            removeHead();
-            return;
-        }
-        Node<T> iterator = head;
-        for (int i = 0; i < index - 1; i++) {
-            if (iterator.next == null) {
-                throw new IllegalArgumentException("Index out of range");
-            }
-            iterator = iterator.next;
-        }
-        iterator.next = iterator.next.next;
-    }
+    public abstract void remove(int index) throws UnderflowException;
 
-    public void remove(UUID id) throws UnderflowException {
-        if (head.id.equals(id)) {
-            removeHead();
-            return;
-        }
-        Node<T> iterator = head;
-        while (!iterator.next.id.equals(id)) {
-            iterator = iterator.next;
-            if (iterator.next == null) {
-                throw new IllegalArgumentException("No node found with the given id!");
-            }
-        }
-        iterator.next = iterator.next.next;
-    }
+    public abstract void remove(UUID id) throws UnderflowException;
 
     @NotNull
     @Override
     public Iterator<Node<T>> iterator() {
         return new Iterator<>() {
-            Node<T> iterator = new Node<>(null, null, head);
+            Node<T> iterator = new Node<>(null, null, head, null);
 
             @Override
             public boolean hasNext() {
@@ -184,14 +93,16 @@ public class LinkedList<T> implements Iterable<Node<T>>, StateFull {
     }
 
     public static class Node<T> implements StateFull {
-        private final UUID id;
+        protected final UUID id;
         private final T data;
-        private Node<T> next;
+        protected Node<T> next;
+        protected Node<T> previous;
 
-        private Node(UUID id, T data, Node<T> next) {
+        protected Node(UUID id, T data, Node<T> next, Node<T> previous) {
             this.id = id;
             this.data = data;
             this.next = next;
+            this.previous = previous;
         }
 
         public UUID getId() {
@@ -210,7 +121,8 @@ public class LinkedList<T> implements Iterable<Node<T>>, StateFull {
         public Map<String, String> getState() {
             return Map.of(
                     "data", data.toString(),
-                    "next", next == null ? "null" : String.valueOf(next.hashCode())
+                    "next", next == null ? "null" : String.valueOf(next.hashCode()),
+                    "previous", previous == null ? "null" : String.valueOf(previous.hashCode())
             );
         }
     }

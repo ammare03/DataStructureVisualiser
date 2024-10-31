@@ -3,6 +3,7 @@ package com.example.datastructurevisualiser;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -11,6 +12,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataStructureVisualiser extends Application {
 
@@ -66,7 +70,18 @@ public class DataStructureVisualiser extends Application {
                 Utilities.alertError(iae);
             }
         });
-        linkedListButton.setOnAction(_ -> Utilities.getInputFromUser("Enter head").ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head).createScene(primaryStage))));
+        linkedListButton.setOnAction(_ -> {
+            List<VisualiseLinkedList.Choice> options = new ArrayList<>();
+            options.add(VisualiseLinkedList.Choice.SINGLY_LINKED_LIST);
+            options.add(VisualiseLinkedList.Choice.DOUBLY_LINKED_LIST);
+
+            ChoiceDialog<VisualiseLinkedList.Choice> dialog = new ChoiceDialog<>(options.getFirst(), options);
+            dialog.setTitle("Linked List Type");
+            dialog.setHeaderText("Select the type of linked list");
+            dialog.setContentText("Choose your option:");
+
+            dialog.showAndWait().ifPresent(choice -> Utilities.getInputFromUser("Enter head").ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head, choice).createScene(primaryStage))));
+        });
         binarySearchTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinarySearchTree(root).createScene(primaryStage))));
         binaryTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinaryTree(root).createScene(primaryStage))));
 
