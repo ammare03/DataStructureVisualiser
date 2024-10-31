@@ -50,6 +50,8 @@ public class VisualiseLinkedList {
         // Create buttons for linked list operations and going back
         Button appendButton = new Button("Append");
         Button prependButton = new Button("Prepend");
+        Button removeHeadButton = new Button("Remove head");
+        Button removeTailButton = new Button("Remove tail");
         Button addButton = new Button("Add");
         Button removeButton = new Button("Remove");
         Button backButton = new Button("Back");
@@ -57,13 +59,15 @@ public class VisualiseLinkedList {
         // Button styles
         styleButton(appendButton);
         styleButton(prependButton);
+        styleButton(removeHeadButton);
+        styleButton(removeTailButton);
         styleButton(addButton);
         styleButton(removeButton);
         styleButton(backButton);
 
         // Create an HBox for the input field and buttons
         HBox inputBox = new HBox(10);  // Horizontal spacing between components
-        inputBox.getChildren().addAll(appendButton, prependButton, addButton, removeButton, backButton);
+        inputBox.getChildren().addAll(appendButton, prependButton, removeHeadButton, removeTailButton, addButton, removeButton, backButton);
         inputBox.setStyle("-fx-alignment: center;");  // Center the HBox
 
         // Add functionality for "Back" button
@@ -82,6 +86,24 @@ public class VisualiseLinkedList {
             linkedList.prepend(data);
             visualizeList(); // Update visualization
         }));
+
+        removeHeadButton.setOnAction(_ -> {
+            try {
+                linkedList.removeHead();
+                visualizeList();
+            } catch (UnderflowException ue) {
+                alertError(ue);
+            }
+        });
+
+        removeTailButton.setOnAction(_ -> {
+            try {
+                linkedList.removeTail();
+                visualizeList();
+            } catch (UnderflowException ue) {
+                alertError(ue);
+            }
+        });
 
         addButton.setOnAction(_ -> {
             // Create the dialog

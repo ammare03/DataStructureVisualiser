@@ -3,10 +3,13 @@ package com.example.datastructurevisualiser;
 import datastructures.linnear.CircularQueue;
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -18,17 +21,25 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static com.example.datastructurevisualiser.Utilities.*;
 
 public class VisualiseCircularQueue {
 
-    private CircularQueue<String> queue;
+    private CircularQueue<String> circularQueue;
     private HBox queueBox = new HBox(10); // HBox for visualizing queue nodes
     private VBox centerQueueBox = new VBox(); // Container to center the queue visualization
     private TextArea stateTextArea = new TextArea(); // TextArea to display the queue state
 
+    // Buttons for queue operations
+    Button enqueueButton = new Button("Enqueue");
+    Button dequeueButton = new Button("Dequeue");
+    Button backButton = new Button("Back");
+
     public VisualiseCircularQueue(int capacity) {
-        queue = new CircularQueue<>(capacity);
+        circularQueue = new CircularQueue<>(capacity);
     }
 
     public Scene createScene(Stage primaryStage) {
@@ -55,10 +66,6 @@ public class VisualiseCircularQueue {
         centerQueueBox.getChildren().add(queueBox); // Add queueBox to the center box
         mainVBox.getChildren().add(centerQueueBox); // Add center box to main VBox
 
-        // Buttons for queue operations
-        Button enqueueButton = new Button("Enqueue");
-        Button dequeueButton = new Button("Dequeue");
-        Button backButton = new Button("Back");
         styleButton(enqueueButton);
         styleButton(dequeueButton);
         styleButton(backButton);
@@ -70,7 +77,7 @@ public class VisualiseCircularQueue {
         enqueueButton.setOnAction(e -> {
             getInputFromUser("Enter data").ifPresent(data -> {
                 try {
-                    queue.enqueue(data);
+                    circularQueue.enqueue(data);
                     visualizeQueue(); // Update visualization
                 } catch (OverflowException oe) {
                     alertError(oe);
@@ -81,7 +88,7 @@ public class VisualiseCircularQueue {
         // Event handler for "Dequeue" button
         dequeueButton.setOnAction(e -> {
             try {
-                queue.dequeue();
+                circularQueue.dequeue();
                 visualizeQueue();
             } catch (UnderflowException ue) {
                 alertError(ue);
@@ -120,7 +127,7 @@ public class VisualiseCircularQueue {
         visualizeQueue();
 
         // Update stateTextArea with the current state of the queue using getState()
-        stateTextArea.setText(getState(queue));
+        stateTextArea.setText(getState(circularQueue));
 
         // Create and return scene with specified dimensions
         return new Scene(root, 1270, 660); // Set window size to 1270x660
@@ -136,8 +143,17 @@ public class VisualiseCircularQueue {
     private void visualizeQueue() {
         queueBox.getChildren().clear(); // Clear current queue visualization
 
+        AtomicInteger index = new AtomicInteger(0); // Initialize index tracker
+
         // Iterate over queue values and add visual nodes
-        queue.forEach(current -> {
+        circularQueue.forEach(current -> {
+            // Label displaying the index
+            Label indexLabel = new Label(String.valueOf(index.getAndIncrement()));
+            indexLabel.setFont(Font.font("Verdana", 14)); // Not bold
+            indexLabel.setTextFill(Color.WHITE); // Set text color to white
+            indexLabel.setAlignment(Pos.CENTER);
+            indexLabel.setPadding(new Insets(5, 0, 0, 0)); // Add some padding for better spacing
+
             // Rectangle representing the queue node
             Rectangle rect = new Rectangle(100, 50);
             rect.setFill(Color.web("#D4BEE4"));
@@ -151,10 +167,32 @@ public class VisualiseCircularQueue {
 
             // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane(rect, valueText);
-            queueBox.getChildren().add(stackPane); // Add the stack pane to the queue box
+
+            // VBox to stack the rectangle and index label vertically
+            VBox nodeBox = new VBox(stackPane, indexLabel);
+            nodeBox.setAlignment(Pos.CENTER);
+
+            queueBox.getChildren().add(nodeBox); // Add new nodes to the queue box
         });
 
         // Update stateTextArea with the current state of the queue using getState()
-        stateTextArea.setText("State:-\n" + getState(queue));
+        stateTextArea.setText("State:-\n" + getState(circularQueue));
+
+        enqueueButton.setTooltip(new Tooltip(getState(() -> {
+            try {
+                return circularQueue.getStateAfterEnqueue("<new>");
+            } catch (OverflowException oe) {
+                return Map.of(oe.getMessage(), "");
+            }
+        })));
+
+        dequeueButton.setTooltip(new Tooltip(getState(() -> {
+            try {
+                return circularQueue.getStateAfterDequeue();
+            } catch (UnderflowException ue) {
+                return Map.of(ue.getMessage(), "");
+            }
+        })));
     }
+
 }

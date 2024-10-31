@@ -3,10 +3,13 @@ package com.example.datastructurevisualiser;
 import datastructures.linnear.Queue;
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -14,6 +17,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.example.datastructurevisualiser.Utilities.*;
 
@@ -23,6 +29,11 @@ public class VisualiseQueue {
     private HBox queueBox = new HBox(10); // HBox for visualizing queue nodes
     private VBox centerQueueBox = new VBox(); // Container to center the queue visualization
     private TextArea stateTextArea = new TextArea(); // TextArea to display the queue state
+
+    // Buttons for queue operations
+    Button enqueueButton = new Button("Enqueue");
+    Button dequeueButton = new Button("Dequeue");
+    Button backButton = new Button("Back");
 
     public VisualiseQueue(int capacity) {
         queue = new Queue<>(capacity);
@@ -52,10 +63,6 @@ public class VisualiseQueue {
         centerQueueBox.getChildren().add(queueBox); // Add queueBox to the center box
         mainVBox.getChildren().add(centerQueueBox); // Add center box to main VBox
 
-        // Buttons for queue operations
-        Button enqueueButton = new Button("Enqueue");
-        Button dequeueButton = new Button("Dequeue");
-        Button backButton = new Button("Back");
         styleButton(enqueueButton);
         styleButton(dequeueButton);
         styleButton(backButton);
@@ -133,8 +140,17 @@ public class VisualiseQueue {
     private void visualizeQueue() {
         queueBox.getChildren().clear(); // Clear current queue visualization
 
+        AtomicInteger index = new AtomicInteger(0); // Initialize index tracker
+
         // Iterate over queue values and add visual nodes
         queue.forEach(current -> {
+            // Label displaying the index
+            Label indexLabel = new Label(String.valueOf(index.getAndIncrement()));
+            indexLabel.setFont(Font.font("Verdana", 14)); // Not bold
+            indexLabel.setTextFill(Color.WHITE); // Set text color to white
+            indexLabel.setAlignment(Pos.CENTER);
+            indexLabel.setPadding(new Insets(5, 0, 0, 0)); // Add some padding for better spacing
+
             // Rectangle representing the queue node
             Rectangle rect = new Rectangle(100, 50);
             rect.setFill(Color.web("#D4BEE4"));
@@ -148,10 +164,31 @@ public class VisualiseQueue {
 
             // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane(rect, valueText);
-            queueBox.getChildren().add(stackPane); // Add the stack pane to the queue box
+
+            // VBox to stack the rectangle and index label vertically
+            VBox nodeBox = new VBox(stackPane, indexLabel);
+            nodeBox.setAlignment(Pos.CENTER);
+
+            queueBox.getChildren().add(nodeBox); // Add new nodes to the queue box
         });
 
         // Update stateTextArea with the current state of the queue using getState()
         stateTextArea.setText("State:-\n" + getState(queue));
+
+        enqueueButton.setTooltip(new Tooltip(getState(() -> {
+            try {
+                return queue.getStateAfterEnqueue("<new>");
+            } catch (OverflowException oe) {
+                return Map.of(oe.getMessage(), "");
+            }
+        })));
+
+        dequeueButton.setTooltip(new Tooltip(getState(() -> {
+            try {
+                return queue.getStateAfterDequeue();
+            } catch (UnderflowException ue) {
+                return Map.of(ue.getMessage(), "");
+            }
+        })));
     }
 }

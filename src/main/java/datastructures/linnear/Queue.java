@@ -79,7 +79,7 @@ public class Queue<T> implements Iterable<T>, StateFull {
         return clone.getState();
     }
 
-    public Map<String, String> getSTateAfterEnqueue(T data) throws OverflowException {
+    public Map<String, String> getStateAfterEnqueue(T data) throws OverflowException {
         Queue<T> clone = clone();
         clone.enqueue(data);
         return clone.getState();

@@ -2,6 +2,7 @@ package com.example.datastructurevisualiser;
 
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -17,6 +18,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import datastructures.linnear.Stack;
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static com.example.datastructurevisualiser.Utilities.*;
 
 public class VisualiseStack {
@@ -24,6 +28,11 @@ public class VisualiseStack {
     private Stack<String> stack; // Initialize the Stack instance
     private VBox stackBox = new VBox(10); // Change back to VBox for vertical alignment
     private TextArea stateTextArea = new TextArea(); // TextArea to display the stack state
+
+    // Buttons for stack operations
+    Button pushButton = new Button("Push");
+    Button popButton = new Button("Pop");
+    Button backButton = new Button("Back");
 
     public VisualiseStack(int capacity) {
         stack = new Stack<>(capacity);
@@ -40,10 +49,6 @@ public class VisualiseStack {
         mainVBox.setStyle("-fx-background-color: #3B1E54; -fx-alignment: center;");
         mainVBox.getChildren().add(title);
 
-        // Buttons for stack operations
-        Button pushButton = new Button("Push");
-        Button popButton = new Button("Pop");
-        Button backButton = new Button("Back");
         styleButton(pushButton);
         styleButton(popButton);
         styleButton(backButton);
@@ -128,8 +133,17 @@ public class VisualiseStack {
     private void visualizeStack() {
         stackBox.getChildren().clear(); // Clear current stack visualization
 
+        AtomicInteger index = new AtomicInteger(0); // Initialize index tracker
+
         // Iterate over stack values and add visual nodes
         stack.forEach(value -> {
+            // Label displaying the index
+            Label indexLabel = new Label(String.valueOf(index.getAndIncrement()));
+            indexLabel.setFont(Font.font("Verdana", 14));
+            indexLabel.setTextFill(Color.web("#EEEEEE"));
+            indexLabel.setAlignment(Pos.CENTER_RIGHT);
+            indexLabel.setPadding(new Insets(0, 10, 0, 0));
+
             // Rectangle representing the stack node
             Rectangle rect = new Rectangle(120, 60); // Increase size for better visibility
             rect.setFill(Color.web("#D4BEE4"));
@@ -143,8 +157,30 @@ public class VisualiseStack {
 
             // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane(rect, valueText);
-            stackBox.getChildren().addFirst(stackPane); // Add new nodes at the end of VBox
+
+            // HBox to combine index label and stack node
+            HBox nodeBox = new HBox(indexLabel, stackPane);
+            nodeBox.setAlignment(Pos.CENTER);
+
+            stackBox.getChildren().addFirst(nodeBox); // Add new nodes at the end of VBox
         });
+
+        // Update tooltips for push and pop buttons with stack state
+        pushButton.setTooltip(new Tooltip(getState(() -> {
+            try {
+                return stack.getStateAfterPush("<new>");
+            } catch (OverflowException oe) {
+                return Map.of(oe.getMessage(), "");
+            }
+        })));
+
+        popButton.setTooltip(new Tooltip(getState(() -> {
+            try {
+                return stack.getStateAfterPop();
+            } catch (UnderflowException ue) {
+                return Map.of(ue.getMessage(), "");
+            }
+        })));
 
         // Update stateTextArea with the current state of the stack using getState()
         stateTextArea.setText("State:-\n" + getState(stack));
