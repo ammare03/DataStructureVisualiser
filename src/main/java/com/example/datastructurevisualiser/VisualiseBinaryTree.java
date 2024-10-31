@@ -23,8 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
-import static com.example.datastructurevisualiser.DataStructureVisualiser.getInputFromUser;
+import static com.example.datastructurevisualiser.Utilities.*;
 
 public class VisualiseBinaryTree {
     Scene scene;
@@ -43,7 +42,7 @@ public class VisualiseBinaryTree {
 
     public Scene createScene(Stage primaryStage) {
         // Title text
-        Text title = new Text("Visualise Binary Trees");
+        Text title = new Text("Binary Tree");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
         title.setFill(Color.web("#EEEEEE"));
 
@@ -111,23 +110,31 @@ public class VisualiseBinaryTree {
     }
 
     private void initializeTraversal(Traversable.Traversal traversal) {
-        nodes.values().forEach(circle -> circle.setStroke(Color.web("#3B1E54")));
+        nodes.values().forEach(circle -> {
+            circle.setStroke(Color.web("#3B1E54"));
+            circle.setStrokeWidth(1);
+        });
         traverseNextButton.setDisable(false);
         traversalResultText.setText(traversal.name() + ':');
         Iterator<Node<String>> i = binaryTree.iterator(traversal);
         traverseNextButton.setOnAction(_ -> {
             if (i.hasNext()) {
                 Node<String> node = i.next();
-                traversalResultText.setText(traversalResultText.getText() + " " + node);
+                traversalResultText.setText(traversalResultText.getText() + " " + node.getData());
                 nodes.forEach((id, circle) -> {
                     if (id.equals(node.getId())) {
                         circle.setStroke(Color.YELLOW);
+                        circle.setStrokeWidth(2);
                     } else {
                         circle.setStroke(Color.web("#3B1E54"));
+                        circle.setStrokeWidth(1);
                     }
                 });
             } else {
-                nodes.values().forEach(circle -> circle.setStroke(Color.web("#3B1E54")));
+                nodes.values().forEach(circle -> {
+                    circle.setStroke(Color.web("#3B1E54"));
+                    circle.setStrokeWidth(1);
+                });
                 traverseNextButton.setDisable(true);
             }
         });
@@ -159,16 +166,30 @@ public class VisualiseBinaryTree {
     private void displayTree(Node<String> node, double x, double y, double offset, UUID id) {
         if (node == null) return;
 
-        // Create a Circle and Text for the current node
+        // Create a Circle for the current node
         Circle circle = new Circle(20, Color.web("#D4BEE4"));
         circle.setStroke(Color.web("#3B1E54"));
-        Text text = new Text(String.valueOf(node.getData()));
+
+        // Create Text for the node value
+        Text text = new Text(node.getData());
         text.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         text.setFill(Color.web("#3B1E54"));
 
-        StackPane nodePane = new StackPane(circle, text);
+        // Create Label for node ID or any other information
+        Label nodeLabel = new Label(String.valueOf(node.hashCode()));
+        nodeLabel.setTextFill(Color.web("#EEEEEE"));
+        nodeLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 10));
+
+        // StackPane to combine circle, text, and label
+        StackPane nodePane = new StackPane(circle, text, nodeLabel);
         nodePane.setLayoutX(x - 20); // Position StackPane center at (x, y)
         nodePane.setLayoutY(y - 20);
+
+        Tooltip.install(nodePane, new Tooltip(getState(node)));
+
+        // Position the label below the circle
+        nodeLabel.setTranslateY(-30); // Adjusts the label position below the node
+
         treePane.getChildren().add(nodePane); // Add node to the treePane
 
         // Calculate child node positions and adjust line length
@@ -201,7 +222,7 @@ public class VisualiseBinaryTree {
                     binaryTree.assignLeft(data.trim(), id);
                     visualizeTree(scene);
                 }));
-                assignRight.setOnAction(_ ->  getInputFromUser("Enter data").ifPresent(data -> {
+                assignRight.setOnAction(_ -> getInputFromUser("Enter data").ifPresent(data -> {
                     binaryTree.assignRight(data.trim(), id);
                     visualizeTree(scene);
                 }));
@@ -213,14 +234,11 @@ public class VisualiseBinaryTree {
                         alertError(ex);
                     }
                 });
-                new ContextMenu(
-                        assignLeft,
-                        assignRight,
-                        removeNode
-                ).show(circle,e.getScreenX(),e.getSceneY());
+                new ContextMenu(assignLeft, assignRight, removeNode).show(circle, e.getScreenX(), e.getSceneY());
             }
         });
 
         nodes.put(id, circle);
     }
+
 }

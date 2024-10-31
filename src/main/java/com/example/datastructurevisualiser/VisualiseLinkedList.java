@@ -17,14 +17,13 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
-import static com.example.datastructurevisualiser.DataStructureVisualiser.getInputFromUser;
+import static com.example.datastructurevisualiser.Utilities.getState;
 
 public class VisualiseLinkedList {
 
     private LinkedList<String> linkedList; // Initialize the LinkedList instance
-    private HBox listBox = new HBox(5); // HBox for visualizing linked list nodes with reduced spacing
     private VBox centerVBox = new VBox(); // Pane for centering the list box
+    private TextArea stateTextArea = new TextArea(); // TextArea for displaying the linked list state
 
     public VisualiseLinkedList(String head) {
         linkedList = new LinkedList<>(head);
@@ -32,7 +31,7 @@ public class VisualiseLinkedList {
 
     public Scene createScene(Stage primaryStage) {
         // Create the title text
-        Text title = new Text("Visualise Linked Lists");
+        Text title = new Text("Linked List");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));  // Title font settings
         title.setFill(Color.web("#EEEEEE"));  // Title text color
 
@@ -65,15 +64,21 @@ public class VisualiseLinkedList {
         });
 
         // Add functionality for each linked list operation button
-        appendButton.setOnAction(_ -> getInputFromUser("Enter data").ifPresent(data -> {
+        appendButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
             linkedList.append(data);
             visualizeList(); // Update visualization
         }));
 
-        prependButton.setOnAction(_ -> getInputFromUser("Enter data").ifPresent(data -> {
+        prependButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
             linkedList.prepend(data);
             visualizeList(); // Update visualization
         }));
+
+        // Initialize TextArea for linked list state display
+        stateTextArea.setEditable(false);
+        stateTextArea.setWrapText(true); // Wrap text for better readability
+        stateTextArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #EEEEEE; -fx-control-inner-background: #3B1E54;");
+        stateTextArea.setPrefSize(300, 200); // Set fixed size for the TextArea
 
         // Create a new AnchorPane for the layout
         AnchorPane root = new AnchorPane();
@@ -100,11 +105,14 @@ public class VisualiseLinkedList {
         AnchorPane.setRightAnchor(inputBox, 0.0);
         root.getChildren().add(inputBox);  // Add the input box to the root AnchorPane
 
+        // Position the stateTextArea at the bottom right of the AnchorPane
+        AnchorPane.setTopAnchor(stateTextArea, 20.0);
+        AnchorPane.setRightAnchor(stateTextArea, 20.0);
+        root.getChildren().add(stateTextArea); // Add the TextArea to the root AnchorPane
+
         visualizeList();
 
         // Create the scene with the specified dimensions
-        // Set window size to 1270x660
-
         return new Scene(root, 1270, 660);
     }
 
@@ -122,63 +130,75 @@ public class VisualiseLinkedList {
         HBox tempListBox = new HBox(5); // Temporary HBox to hold nodes
         tempListBox.setAlignment(Pos.CENTER); // Center nodes within the HBox
 
-        linkedList.forEach(current -> {
-
+        linkedList.forEach(node -> {
             // Create rectangle for node representation
             Rectangle rect = new Rectangle(100, 50); // Width and height of rectangle
             rect.setFill(Color.web("#D4BEE4")); // Node color
 
             // Text for node value
-            Text nodeText = new Text(String.valueOf(current));
+            Text nodeText = new Text(node.getData());
             nodeText.setFill(Color.web("#3B1E54"));
             nodeText.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+
+            // Label for node information
+            Label nodeLabel = new Label(String.valueOf(node.hashCode()));
+            nodeLabel.setTextFill(Color.web("#EEEEEE"));
+            nodeLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 12));
 
             // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane();
             stackPane.getChildren().addAll(rect, nodeText);
-            tempListBox.getChildren().add(stackPane); // Add node to temporary HBox
+
+            Tooltip.install(stackPane, new Tooltip(getState(node)));
+
+            // VBox to stack the node and its label
+            VBox nodeBox = new VBox(5);
+            nodeBox.setAlignment(Pos.CENTER); // Center the stackPane and label
+            nodeBox.getChildren().addAll(stackPane, nodeLabel);
+
+            tempListBox.getChildren().add(nodeBox); // Add nodeBox (containing node and label) to HBox
 
             // Draw line between nodes
-            if (current.getNext() != null) {
+            if (node.getNext() != null) {
                 Line line = new Line(0, 25, 30, 25); // Line positioned vertically between nodes
                 line.setStroke(Color.web("#EEEEEE"));
                 line.setStrokeWidth(2);
                 tempListBox.getChildren().add(line); // Add line after the current node
             }
 
+            // Context menu for node interaction
             stackPane.setOnMouseClicked(e -> {
                 if(e.getButton().toString().equals("SECONDARY")) {
                     MenuItem addBefore = new MenuItem("Add before");
                     MenuItem addAfter = new MenuItem("Add after");
                     MenuItem removeNode = new MenuItem("Remove node");
                     addBefore.setOnAction(_ -> {
-                        getInputFromUser("Enter data").ifPresent(data -> {
-                            linkedList.addBefore(data.trim(), current.getId());
+                        Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+                            linkedList.addBefore(data.trim(), node.getId());
                             visualizeList();
                         });
                     });
                     addAfter.setOnAction(_ -> {
-                        getInputFromUser("Enter data").ifPresent(data -> {
-                            linkedList.addAfter(data.trim(), current.getId());
+                        Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+                            linkedList.addAfter(data.trim(), node.getId());
                             visualizeList();
                         });
                     });
                     removeNode.setOnAction(_ -> {
                         try {
-                            linkedList.remove(current.getId());
+                            linkedList.remove(node.getId());
                             visualizeList();
                         } catch (UnderflowException ue) {
-                            alertError(ue);
+                            Utilities.alertError(ue);
                         }
                     });
-                    new ContextMenu(
-                            addBefore,
-                            addAfter,
-                            removeNode
-                    ).show(rect,e.getScreenX(),e.getSceneY());
+                    new ContextMenu(addBefore, addAfter, removeNode).show(rect, e.getScreenX(), e.getSceneY());
                 }
             });
         });
+
+        // Update stateTextArea with the current state of the linked list using getState()
+        stateTextArea.setText("State:-\n" + getState(linkedList));
 
         // Add the tempListBox to the centerVBox
         centerVBox.getChildren().add(tempListBox); // This automatically centers it vertically

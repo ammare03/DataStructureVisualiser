@@ -1,15 +1,17 @@
 package datastructures.linnear;
 
+import datastructures.StateFull;
 import datastructures.linnear.LinkedList.Node;
 import exceptions.UnderflowException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class LinkedList<T> implements Iterable<Node<T>> {
+public class LinkedList<T> implements Iterable<Node<T>>, StateFull {
     Node<T> head;
 
     public LinkedList(T head) {
@@ -176,7 +178,12 @@ public class LinkedList<T> implements Iterable<Node<T>> {
         return Iterable.super.spliterator();
     }
 
-    public static class Node<T> {
+    @Override
+    public Map<String, String> getState() {
+        return Map.of("head", String.valueOf(head.hashCode()));
+    }
+
+    public static class Node<T> implements StateFull {
         private final UUID id;
         private final T data;
         private Node<T> next;
@@ -200,8 +207,11 @@ public class LinkedList<T> implements Iterable<Node<T>> {
         }
 
         @Override
-        public String toString() {
-            return data.toString();
+        public Map<String, String> getState() {
+            return Map.of(
+                    "data", data.toString(),
+                    "next", next == null ? "null" : String.valueOf(next.hashCode())
+            );
         }
     }
 }

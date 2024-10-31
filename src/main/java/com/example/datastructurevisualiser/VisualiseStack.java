@@ -8,7 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox; // Keep VBox for vertical alignment
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -17,12 +17,13 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import datastructures.linnear.Stack;
 
-import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
+import static com.example.datastructurevisualiser.Utilities.*;
 
 public class VisualiseStack {
 
     private Stack<String> stack; // Initialize the Stack instance
     private VBox stackBox = new VBox(10); // Change back to VBox for vertical alignment
+    private TextArea stateTextArea = new TextArea(); // TextArea to display the stack state
 
     public VisualiseStack(int capacity) {
         stack = new Stack<>(capacity);
@@ -30,7 +31,7 @@ public class VisualiseStack {
 
     public Scene createScene(Stage primaryStage) {
         // Title text
-        Text title = new Text("Visualise Stack");
+        Text title = new Text("Stack");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
         title.setFill(Color.web("#EEEEEE"));
 
@@ -38,12 +39,6 @@ public class VisualiseStack {
         VBox mainVBox = new VBox(20);
         mainVBox.setStyle("-fx-background-color: #3B1E54; -fx-alignment: center;");
         mainVBox.getChildren().add(title);
-
-        // TextField for user input
-        TextField inputField = new TextField();
-        inputField.setPromptText("Enter a value");
-        inputField.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-size: 16px; " +
-                "-fx-padding: 10px; -fx-pref-width: 200px;");
 
         // Buttons for stack operations
         Button pushButton = new Button("Push");
@@ -58,18 +53,14 @@ public class VisualiseStack {
 
         // Event handler for "Push" button
         pushButton.setOnAction(e -> {
-            String inputValue = inputField.getText().trim();
-            if (!inputValue.isEmpty()) {
+            getInputFromUser("Enter data").ifPresent(data -> {
                 try {
-                    stack.push(inputValue);
+                    stack.push(data);
                     visualizeStack(); // Update visualization
-                    inputField.clear();
-                } catch (NumberFormatException ex) {
-                    System.out.println("Please enter a valid integer.");
                 } catch (OverflowException oe) {
                     alertError(oe);
                 }
-            }
+            });
         });
 
         // Event handler for "Pop" button
@@ -84,8 +75,14 @@ public class VisualiseStack {
 
         // HBox for input and buttons at the bottom
         HBox inputBox = new HBox(10);
-        inputBox.getChildren().addAll(inputField, pushButton, popButton, backButton);
+        inputBox.getChildren().addAll(pushButton, popButton, backButton);
         inputBox.setStyle("-fx-alignment: center;");
+
+        // Initialize TextArea for stack state display
+        stateTextArea.setEditable(false);
+        stateTextArea.setWrapText(true);
+        stateTextArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #EEEEEE; -fx-control-inner-background: #3B1E54;");
+        stateTextArea.setPrefSize(300, 200); // Set width to half
 
         // Main pane setup
         AnchorPane root = new AnchorPane();
@@ -104,15 +101,20 @@ public class VisualiseStack {
         stackBox.setAlignment(Pos.CENTER); // Align nodes to the center
         root.getChildren().add(stackBox);
 
-        // Add inputBox to bottom of the AnchorPane
+        // Add inputBox to the bottom of the AnchorPane
         AnchorPane.setBottomAnchor(inputBox, 20.0);
         AnchorPane.setLeftAnchor(inputBox, 0.0);
         AnchorPane.setRightAnchor(inputBox, 0.0);
         root.getChildren().add(inputBox);
 
+        // Position the stateTextArea at the bottom right of the AnchorPane
+        AnchorPane.setTopAnchor(stateTextArea, 20.0);
+        AnchorPane.setRightAnchor(stateTextArea, 20.0);
+        root.getChildren().add(stateTextArea); // Add the TextArea to the root AnchorPane
+
         visualizeStack();
 
-        // Create and return scene
+        // Create and return the scene
         return new Scene(root, 1040, 600);
     }
 
@@ -143,5 +145,8 @@ public class VisualiseStack {
             StackPane stackPane = new StackPane(rect, valueText);
             stackBox.getChildren().addFirst(stackPane); // Add new nodes at the end of VBox
         });
+
+        // Update stateTextArea with the current state of the stack using getState()
+        stateTextArea.setText("State:-\n" + getState(stack));
     }
 }

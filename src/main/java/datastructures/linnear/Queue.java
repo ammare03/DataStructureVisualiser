@@ -1,15 +1,17 @@
 package datastructures.linnear;
 
+import datastructures.StateFull;
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class Queue<T> implements Iterable<T>, ArrayBased<T> {
+public class Queue<T> implements Iterable<T>, StateFull {
     private T[] array;
     private int front = -1;
     private int rear = 0;
@@ -71,24 +73,24 @@ public class Queue<T> implements Iterable<T>, ArrayBased<T> {
         return queue;
     }
 
-    @Override
-    public String getIndexState() {
-        return "front : " + front + "\n" +
-                "rear : " + rear + "\n" +
-                "array : " + Arrays.toString(array);
-    }
-
-    @Override
-    public String getIndexStateAfterPop() throws UnderflowException {
+    public Map<String, String> getStateAfterDequeue() throws UnderflowException {
         Queue<T> clone = clone();
         clone.dequeue();
-        return clone.getIndexState();
+        return clone.getState();
+    }
+
+    public Map<String, String> getSTateAfterEnqueue(T data) throws OverflowException {
+        Queue<T> clone = clone();
+        clone.enqueue(data);
+        return clone.getState();
     }
 
     @Override
-    public String getIndexStateAfterPush(T data) throws OverflowException {
-        Queue<T> clone = clone();
-        clone.enqueue(data);
-        return clone.getIndexState();
+    public Map<String, String> getState() {
+        return Map.of(
+                "front", String.valueOf(front),
+                "rear", String.valueOf(rear),
+                "array", Arrays.toString(array)
+        );
     }
 }

@@ -1,15 +1,17 @@
 package datastructures.linnear;
 
+import datastructures.StateFull;
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class Stack<T> implements Iterable<T>, ArrayBased<T> {
+public class Stack<T> implements Iterable<T>, StateFull {
     private int top = -1;
     private T[] array;
     public Stack(int size) {
@@ -69,23 +71,23 @@ public class Stack<T> implements Iterable<T>, ArrayBased<T> {
         return stack;
     }
 
-    @Override
-    public String getIndexState() {
-        return "top : " + top + "\n" +
-                "array : " + Arrays.toString(array);
-    }
-
-    @Override
-    public String getIndexStateAfterPop() throws UnderflowException {
+    public Map<String, String> getStateAfterPop() throws UnderflowException {
         Stack<T> clone = clone();
         clone.pop();
-        return clone.getIndexState();
+        return clone.getState();
+    }
+
+    public Map<String, String> getStateAfterPush(T data) throws OverflowException {
+        Stack<T> clone = clone();
+        clone.push(data);
+        return clone.getState();
     }
 
     @Override
-    public String getIndexStateAfterPush(T data) throws OverflowException {
-        Stack<T> clone = clone();
-        clone.push(data);
-        return clone.getIndexState();
+    public Map<String, String> getState() {
+        return Map.of(
+                "top", String.valueOf(top),
+                "array", Arrays.toString(array)
+        );
     }
 }

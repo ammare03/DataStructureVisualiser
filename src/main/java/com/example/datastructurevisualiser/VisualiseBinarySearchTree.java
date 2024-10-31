@@ -3,7 +3,6 @@ package com.example.datastructurevisualiser;
 import datastructures.nonlinnear.BaseTree;
 import datastructures.nonlinnear.BinarySearchTree;
 import datastructures.nonlinnear.Traversable;
-import exceptions.UnderflowException;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
@@ -19,7 +18,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import jdk.jshell.spi.ExecutionControl;
 import jdk.jshell.spi.ExecutionControl.NotImplementedException;
 
 import java.util.HashMap;
@@ -27,8 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.example.datastructurevisualiser.DataStructureVisualiser.alertError;
-import static com.example.datastructurevisualiser.DataStructureVisualiser.getInputFromUser;
+import static com.example.datastructurevisualiser.Utilities.alertError;
 
 public class VisualiseBinarySearchTree {
     Scene scene;
@@ -47,7 +44,7 @@ public class VisualiseBinarySearchTree {
 
     public Scene createScene(Stage primaryStage) {
         // Title text
-        Text title = new Text("Visualise Binary Trees");
+        Text title = new Text("Binary Search Tree");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
         title.setFill(Color.web("#EEEEEE"));
 
@@ -84,7 +81,7 @@ public class VisualiseBinarySearchTree {
         // Button actions
         insertButton.setOnAction(e -> {
             try {
-                DataStructureVisualiser.getInputFromUser("Enter data").ifPresent(data -> {
+                Utilities.getInputFromUser("Enter data").ifPresent(data -> {
                     binarySearchTree.insert(data);
                     visualizeTree(scene); // Update tree visualization after insertion
                 });
