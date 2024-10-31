@@ -30,6 +30,7 @@ public class VisualiseBinaryTree {
     private Button traverseNextButton = new Button("Traverse Next");
 
     private final Map<UUID, Circle> nodes = new HashMap<>();
+    private TextArea stateTextArea = new TextArea();
 
     public VisualiseBinaryTree(String root) {
         binaryTree = new BinaryTree<>(root);
@@ -162,6 +163,17 @@ public class VisualiseBinaryTree {
         primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> visualizeTree(scene));
         primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> visualizeTree(scene));
 
+        // Initialize TextArea for linked list state display
+        stateTextArea.setEditable(false);
+        stateTextArea.setWrapText(true); // Wrap text for better readability
+        stateTextArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #EEEEEE; -fx-control-inner-background: #3B1E54;");
+        stateTextArea.setPrefSize(300, 200); // Set fixed size for the TextArea
+
+        // Position the stateTextArea at the bottom right of the AnchorPane
+        AnchorPane.setTopAnchor(stateTextArea, 20.0);
+        AnchorPane.setRightAnchor(stateTextArea, 20.0);
+        root.getChildren().add(stateTextArea); // Add the TextArea to the root AnchorPane
+
         visualizeTree(scene);
         return scene; // Updated window size
     }
@@ -217,6 +229,9 @@ public class VisualiseBinaryTree {
         double sceneWidth = scene.getWidth(); // Get current scene width
         AnchorPane.setLeftAnchor(treePane, (sceneWidth - treePane.getWidth()) / 2);
         AnchorPane.setRightAnchor(treePane, (sceneWidth - treePane.getWidth()) / 2);
+
+        // Update stateTextArea with the current state of the tree using getState()
+        stateTextArea.setText("State:-\n" + getState(binaryTree));
     }
 
     // Recursive method to display the binary tree with accurate positioning and lines

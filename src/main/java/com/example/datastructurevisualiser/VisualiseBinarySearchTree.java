@@ -4,9 +4,7 @@ import datastructures.nonlinnear.BaseTree;
 import datastructures.nonlinnear.BinarySearchTree;
 import datastructures.nonlinnear.Traversable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -26,6 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.example.datastructurevisualiser.Utilities.alertError;
+import static com.example.datastructurevisualiser.Utilities.getInputFromUser;
 
 public class VisualiseBinarySearchTree {
     Scene scene;
@@ -57,6 +56,7 @@ public class VisualiseBinarySearchTree {
         Button inorderButton = new Button("Inorder");
         Button preorderButton = new Button("Preorder");
         Button postorderButton = new Button("Postorder");
+        Button searchButton = new Button("Search");
         Button backButton = new Button("Back");
 
         traverseNextButton.setDisable(true);
@@ -69,10 +69,11 @@ public class VisualiseBinarySearchTree {
         styleButton(backButton);
 
         styleButton(traverseNextButton);
+        styleButton(searchButton);
 
         // Set up HBox for input field and buttons
         HBox inputBox = new HBox(10);
-        inputBox.getChildren().addAll(insertButton, inorderButton, preorderButton, postorderButton, traverseNextButton, backButton);
+        inputBox.getChildren().addAll(insertButton, inorderButton, preorderButton, postorderButton, traverseNextButton, searchButton, backButton);
         inputBox.setStyle("-fx-alignment: center;");
 
         // "Back" button functionality
@@ -90,9 +91,11 @@ public class VisualiseBinarySearchTree {
             }
         });
 
-        inorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.INORDER));
-        preorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.PREORDER));
-        postorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.POSTORDER));
+        inorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.INORDER));
+        preorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.PREORDER));
+        postorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.POSTORDER));
+
+        searchButton.setOnAction(_ -> getInputFromUser("Enter data to search").ifPresent(data -> new Alert(Alert.AlertType.INFORMATION, binarySearchTree.search(data) ? "Found!" : "Not found!", ButtonType.OK).show()));
 
         // VBox layout to center all components with consistent spacing
         VBox mainVBox = new VBox(10); // Set spacing between elements

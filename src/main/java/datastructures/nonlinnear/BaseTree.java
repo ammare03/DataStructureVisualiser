@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>> {
+public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>>, StateFull {
     protected Node<T> root;
 
     public BaseTree(T root) {
@@ -115,5 +115,10 @@ public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>> {
 
     public Node<T> getRoot() {
         return root;
+    }
+
+    @Override
+    public Map<String, String> getState() {
+        return Map.of("root", String.valueOf(root.hashCode()));
     }
 }
