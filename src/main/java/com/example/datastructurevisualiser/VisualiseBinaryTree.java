@@ -6,10 +6,7 @@ import datastructures.nonlinnear.Traversable;
 import exceptions.UnderflowException;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -17,11 +14,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.example.datastructurevisualiser.Utilities.*;
 
@@ -54,6 +49,7 @@ public class VisualiseBinaryTree {
         Button inorderButton = new Button("Inorder");
         Button preorderButton = new Button("Preorder");
         Button postorderButton = new Button("Postorder");
+        Button createFromTraversalsButton = new Button("Create from traversals");
         Button backButton = new Button("Back");
 
         traverseNextButton.setDisable(true);
@@ -65,10 +61,11 @@ public class VisualiseBinaryTree {
         styleButton(backButton);
 
         styleButton(traverseNextButton);
+        styleButton(createFromTraversalsButton);
 
         // Set up HBox for input field and buttons
         HBox inputBox = new HBox(10);
-        inputBox.getChildren().addAll(inorderButton, preorderButton, postorderButton, traverseNextButton, backButton);
+        inputBox.getChildren().addAll(inorderButton, preorderButton, postorderButton, traverseNextButton, createFromTraversalsButton, backButton);
         inputBox.setStyle("-fx-alignment: center;");
 
         // "Back" button functionality
@@ -78,6 +75,66 @@ public class VisualiseBinaryTree {
         inorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.INORDER));
         preorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.PREORDER));
         postorderButton.setOnAction(e -> initializeTraversal(Traversable.Traversal.POSTORDER));
+        createFromTraversalsButton.setOnAction(_ -> {
+            // Create the dialog
+            Dialog<Pair<String, String>> dialog = new Dialog<>();
+            dialog.setTitle("Input traversals");
+            dialog.setHeaderText("Please enter the inorder and preorder traversals.");
+
+            // Create the grid pane for input fields
+            GridPane grid = new GridPane();
+            TextField inorderField = new TextField();
+            TextField preorderField = new TextField();
+            grid.add(new Label("Inorder:"), 0, 0);
+            grid.add(inorderField, 1, 0);
+            grid.add(new Label("Preorder:"), 0, 1);
+            grid.add(preorderField, 1, 1);
+
+            // Set the grid pane in the dialog
+            dialog.getDialogPane().setContent(grid);
+
+            // Add buttons to the dialog
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            // Handle the OK button action
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == ButtonType.OK) {
+                    return new Pair<>(inorderField.getText(), preorderField.getText());
+                }
+                return null;
+            });
+
+            // Show the dialog and wait for the response
+            Optional<Pair<String, String>> result = dialog.showAndWait();
+
+            // Process the input if the user clicked OK
+            result.ifPresent(pair -> {
+                try {
+                    String inorder = pair.getKey();
+                    String preorder = pair.getValue();
+
+                    String[] inSplit = inorder.split(",");
+                    String[] preSplit = preorder.split(",");
+
+                    if (inSplit.length != preSplit.length) {
+                        throw new IllegalArgumentException("Inconsistent traversals");
+                    }
+
+                    String[] inArray = new String[inSplit.length];
+                    String[] preArray = new String[preSplit.length];
+
+                    for (int i = 0; i < inSplit.length; i++) {
+                        inArray[i] = inSplit[i].trim();
+                        preArray[i] = preSplit[i].trim();
+                    }
+
+                    binaryTree = BinaryTree.constructBinaryTree(inArray, preArray);
+                    visualizeTree(scene);
+                } catch (Exception e) {
+                    alertError(e);
+                }
+            });
+        });
 
         // VBox layout to center all components with consistent spacing
         VBox mainVBox = new VBox(10); // Set spacing between elements
