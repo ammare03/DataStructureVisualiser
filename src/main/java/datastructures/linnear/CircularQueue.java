@@ -2,25 +2,17 @@ package datastructures.linnear;
 
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.function.Consumer;
+import java.util.*;
 
-public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
-    private T[] array;
-    private int front = -1;
-    private int rear = 0;
+public class CircularQueue<T> extends Queue<T> {
     private boolean isWrapped = false;
     private boolean specialCaseQueueEmpty = false;
     public CircularQueue(int size) {
-        if (size < 1) {
-            throw new IllegalArgumentException("Size cannot be less than one!");
-        }
-        array = (T[]) new Object[size];
+        super(size);
     }
+
+    @Override
     public void enqueue(T data) throws OverflowException {
         if ((!isWrapped && ((rear == 0) && (front == (array.length - 1)))) || (isWrapped && (front == (rear - 1)))) {
             throw new OverflowException("Circular Queue Overflow!");
@@ -33,6 +25,8 @@ public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
             array[++front] = data;
         }
     }
+
+    @Override
     public T dequeue() throws UnderflowException {
         if ((isWrapped && (((rear == 0) && (front == (array.length - 1))))) || (!isWrapped && (rear == (front + 1)))) {
             throw new UnderflowException("Circular Queue Underflow!");
@@ -45,27 +39,14 @@ public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
         }
         return array[rear++];
     }
-    private T[] getNulledArray() {
+
+    @Override
+    protected T[] getNulledArray() {
         T[] nulledArray = (T[]) new Object[array.length];
         for (int i = 0; i < array.length; i++) {
             nulledArray[i] = specialCaseQueueEmpty ? null : (isWrapped ? (((i <= front) || (i >= rear)) ? array[i] : null) : (((i <= front) && (i >= rear)) ? array[i] : null));
         }
         return nulledArray;
-    }
-    @NotNull
-    @Override
-    public Iterator<T> iterator() {
-        return Arrays.stream(getNulledArray()).iterator();
-    }
-
-    @Override
-    public void forEach(Consumer<? super T> action) {
-        Arrays.stream(getNulledArray()).forEach(action);
-    }
-
-    @Override
-    public Spliterator<T> spliterator() {
-        return Arrays.stream(getNulledArray()).spliterator();
     }
 
     @Override
@@ -80,24 +61,9 @@ public class CircularQueue<T> implements Iterable<T>, ArrayBased<T> {
     }
 
     @Override
-    public String getIndexState() {
-        return "front : " + front + "\n" +
-                "rear : " + rear + "\n" +
-                "isWrapped : " + isWrapped + "\n" +
-                "array : " + Arrays.toString(array);
-    }
-
-    @Override
-    public String getIndexStateAfterPop() throws UnderflowException {
-        CircularQueue<T> clone = clone();
-        clone.dequeue();
-        return clone.getIndexState();
-    }
-
-    @Override
-    public String getIndexStateAfterPush(T data) throws OverflowException {
-        CircularQueue<T> clone = clone();
-        clone.enqueue(data);
-        return clone.getIndexState();
+    public Map<String, String> getState() {
+        Map<String, String> state = new HashMap<>(super.getState());
+        state.put("isWrapped", String.valueOf(isWrapped));
+        return state;
     }
 }

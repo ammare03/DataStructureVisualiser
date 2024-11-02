@@ -2,10 +2,7 @@ package com.example.datastructurevisualiser;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -14,8 +11,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-import java.util.Optional;
 
 public class DataStructureVisualiser extends Application {
 
@@ -43,7 +38,6 @@ public class DataStructureVisualiser extends Application {
         Button arrayButton = createStyledButton("Array");
         Button stackButton = createStyledButton("Stack");
         Button queueButton = createStyledButton("Queue");
-        Button circularQueueButton = createStyledButton("Circular Queue");
         Button linkedListButton = createStyledButton("Linked List");
         Button binarySearchTreeButton = createStyledButton("Binary Search Tree");
         Button binaryTreeButton = createStyledButton("Binary Tree");
@@ -52,54 +46,32 @@ public class DataStructureVisualiser extends Application {
         arrayButton.setOnAction(_ -> primaryStage.setScene(new VisualiseArray().createScene(primaryStage)));
         stackButton.setOnAction(_ -> {
             try {
-                getInputFromUser("Enter stack capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseStack(Integer.parseInt(capacity)).createScene(primaryStage)));
+                Utilities.getInputFromUser("Enter stack capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseStack(Integer.parseInt(capacity)).createScene(primaryStage)));
             } catch (IllegalArgumentException iae) {
-                alertError(iae);
+                Utilities.alertError(iae);
             }
         });
         queueButton.setOnAction(_ -> {
             try {
-                getInputFromUser("Enter queue capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseQueue(Integer.parseInt(capacity)).createScene(primaryStage)));
+                Utilities.getChoiceFromUser("Circular Queue Type", "Select the type of circular queue", VisualiseQueue.Choice.NORMAL_QUEUE, VisualiseQueue.Choice.CIRCULAR_QUEUE).ifPresent(choice -> Utilities.getInputFromUser("Enter queue capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseQueue(Integer.parseInt(capacity), choice).createScene(primaryStage))));
             } catch (IllegalArgumentException iae) {
-                alertError(iae);
+                Utilities.alertError(iae);
             }
         });
-        circularQueueButton.setOnAction(_ -> {
-            try {
-                getInputFromUser("Enter circular queue capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseCircularQueue(Integer.parseInt(capacity)).createScene(primaryStage)));
-            } catch (IllegalArgumentException iae) {
-                alertError(iae);
-            }
-        });
-        linkedListButton.setOnAction(_ -> getInputFromUser("Enter head").ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head).createScene(primaryStage))));
-        binarySearchTreeButton.setOnAction(_ -> getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinarySearchTree(root).createScene(primaryStage))));
-        binaryTreeButton.setOnAction(_ -> getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinaryTree(root).createScene(primaryStage))));
+        linkedListButton.setOnAction(_ -> Utilities.getChoiceFromUser("Linked List Type", "Select the type of linked list", VisualiseLinkedList.Choice.SINGLY_LINKED_LIST, VisualiseLinkedList.Choice.DOUBLY_LINKED_LIST).ifPresent(choice -> Utilities.getInputFromUser("Enter head").ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head, choice).createScene(primaryStage)))));
+        binarySearchTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinarySearchTree(root).createScene(primaryStage))));
+        binaryTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinaryTree(root).createScene(primaryStage))));
 
         // Create an HBox to hold the buttons horizontally with spacing
         HBox hbox = new HBox(20);  // Horizontal spacing between buttons
         hbox.setStyle("-fx-alignment: center;");  // Center the HBox within the VBox
-        hbox.getChildren().addAll(arrayButton, stackButton, queueButton, circularQueueButton, linkedListButton, binarySearchTreeButton, binaryTreeButton);
+        hbox.getChildren().addAll(arrayButton, stackButton, queueButton, linkedListButton, binarySearchTreeButton, binaryTreeButton);
 
         // Add HBox of buttons to the VBox
         vbox.getChildren().add(hbox);
 
         // Return the Scene object with the desired dimensions
         return new Scene(new StackPane(vbox), 1270, 660); // Set window size to 1270x660
-    }
-
-    public static Optional<String> getInputFromUser(String contentText) {
-        TextInputDialog inputDialog = new TextInputDialog();
-        inputDialog.setContentText(contentText);
-        if(inputDialog.showAndWait().isPresent()) {
-            return Optional.of(inputDialog.getEditor().getText());
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public static void alertError(Exception exception) {
-        new Alert(Alert.AlertType.ERROR, exception.getMessage(), ButtonType.OK).show();
-
     }
 
     // Helper method to create styled buttons

@@ -1,10 +1,13 @@
 package datastructures.nonlinnear;
 
+import datastructures.StateFull;
+
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
-public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>> {
+public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>>, StateFull {
     protected Node<T> root;
 
     public BaseTree(T root) {
@@ -61,7 +64,7 @@ public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>> {
         return list;
     }
 
-    public static class Node<T> {
+    public static class Node<T> implements StateFull {
         protected final UUID id;
         protected final T data;
         protected Node<T> left;
@@ -97,8 +100,12 @@ public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>> {
         }
 
         @Override
-        public String toString() {
-            return data.toString();
+        public Map<String, String> getState() {
+            return Map.of(
+                    "data", data.toString(),
+                    "left", left == null ? "null" : String.valueOf(left.hashCode()),
+                    "right", right == null ? "null" : String.valueOf(right.hashCode())
+            );
         }
     }
     @Override
@@ -108,5 +115,10 @@ public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>> {
 
     public Node<T> getRoot() {
         return root;
+    }
+
+    @Override
+    public Map<String, String> getState() {
+        return Map.of("root", String.valueOf(root.hashCode()));
     }
 }

@@ -1,18 +1,20 @@
 package datastructures.linnear;
 
+import datastructures.StateFull;
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class Queue<T> implements Iterable<T>, ArrayBased<T> {
-    private T[] array;
-    private int front = -1;
-    private int rear = 0;
+public class Queue<T> implements Iterable<T>, StateFull {
+    protected T[] array;
+    protected int front = -1;
+    protected int rear = 0;
     public Queue(int size) {
         if (size < 1) {
             throw new IllegalArgumentException("Size cannot be less than one!");
@@ -38,7 +40,7 @@ public class Queue<T> implements Iterable<T>, ArrayBased<T> {
         return array[rear];
     }
 
-    private T[] getNulledArray() {
+    protected T[] getNulledArray() {
         T[] nulledArray = (T[]) new Object[array.length];
         for (int i = 0; i < array.length; i++) {
             nulledArray[i] = i >= rear && i <= front ? array[i] : null;
@@ -49,17 +51,17 @@ public class Queue<T> implements Iterable<T>, ArrayBased<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        return Arrays.stream(getNulledArray()).iterator();
+        return Arrays.asList(getNulledArray()).iterator();
     }
 
     @Override
     public void forEach(Consumer<? super T> action) {
-        Arrays.stream(getNulledArray()).forEach(action);
+        Arrays.asList(getNulledArray()).forEach(action);
     }
 
     @Override
     public Spliterator<T> spliterator() {
-        return Arrays.stream(getNulledArray()).spliterator();
+        return Arrays.asList(getNulledArray()).spliterator();
     }
 
     @Override
@@ -71,24 +73,24 @@ public class Queue<T> implements Iterable<T>, ArrayBased<T> {
         return queue;
     }
 
-    @Override
-    public String getIndexState() {
-        return "front : " + front + "\n" +
-                "rear : " + rear + "\n" +
-                "array : " + Arrays.toString(array);
-    }
-
-    @Override
-    public String getIndexStateAfterPop() throws UnderflowException {
+    public Map<String, String> getStateAfterDequeue() throws UnderflowException {
         Queue<T> clone = clone();
         clone.dequeue();
-        return clone.getIndexState();
+        return clone.getState();
+    }
+
+    public Map<String, String> getStateAfterEnqueue(T data) throws OverflowException {
+        Queue<T> clone = clone();
+        clone.enqueue(data);
+        return clone.getState();
     }
 
     @Override
-    public String getIndexStateAfterPush(T data) throws OverflowException {
-        Queue<T> clone = clone();
-        clone.enqueue(data);
-        return clone.getIndexState();
+    public Map<String, String> getState() {
+        return Map.of(
+                "front", String.valueOf(front),
+                "rear", String.valueOf(rear),
+                "array", Arrays.toString(array)
+        );
     }
 }
