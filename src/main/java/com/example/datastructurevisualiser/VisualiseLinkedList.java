@@ -27,8 +27,8 @@ public class VisualiseLinkedList {
     private VBox centerVBox = new VBox(); // Pane for centering the list box
     private TextArea stateTextArea = new TextArea(); // TextArea for displaying the linked list state
 
-    public VisualiseLinkedList(String head, Choice choice) {
-        linkedList = switch (choice) {
+    public VisualiseLinkedList(String head, Choice variant) {
+        linkedList = switch (variant) {
             case SINGLY_LINKED_LIST -> new SinglyLinkedList<>(head);
             case DOUBLY_LINKED_LIST -> new DoublyLinkedList<>(head);
         };

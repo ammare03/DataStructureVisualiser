@@ -1,5 +1,6 @@
 package com.example.datastructurevisualiser;
 
+import datastructures.linnear.CircularQueue;
 import datastructures.linnear.Queue;
 import exceptions.OverflowException;
 import exceptions.UnderflowException;
@@ -35,8 +36,11 @@ public class VisualiseQueue {
     Button dequeueButton = new Button("Dequeue");
     Button backButton = new Button("Back");
 
-    public VisualiseQueue(int capacity) {
-        queue = new Queue<>(capacity);
+    public VisualiseQueue(int capacity, Choice variant) {
+        queue = switch (variant) {
+            case NORMAL_QUEUE -> new Queue<>(capacity);
+            case CIRCULAR_QUEUE -> new CircularQueue<>(capacity);
+        };
     }
 
     public Scene createScene(Stage primaryStage) {
@@ -123,9 +127,6 @@ public class VisualiseQueue {
 
         visualizeQueue();
 
-        // Update stateTextArea with the current state of the queue using getState()
-        stateTextArea.setText(getState(queue));
-
         // Create and return scene with specified dimensions
         return new Scene(root, 1270, 660); // Set window size to 1270x660
     }
@@ -190,5 +191,21 @@ public class VisualiseQueue {
                 return Map.of(ue.getMessage(), "");
             }
         })));
+    }
+
+    public enum Choice {
+        NORMAL_QUEUE("Normal Queue"),
+        CIRCULAR_QUEUE("Circular Queue");
+
+        private final String toString;
+
+        Choice(String toString) {
+            this.toString = toString;
+        }
+
+        @Override
+        public String toString() {
+            return toString;
+        }
     }
 }

@@ -12,9 +12,9 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 public class Queue<T> implements Iterable<T>, StateFull {
-    private T[] array;
-    private int front = -1;
-    private int rear = 0;
+    protected T[] array;
+    protected int front = -1;
+    protected int rear = 0;
     public Queue(int size) {
         if (size < 1) {
             throw new IllegalArgumentException("Size cannot be less than one!");
@@ -40,7 +40,7 @@ public class Queue<T> implements Iterable<T>, StateFull {
         return array[rear];
     }
 
-    private T[] getNulledArray() {
+    protected T[] getNulledArray() {
         T[] nulledArray = (T[]) new Object[array.length];
         for (int i = 0; i < array.length; i++) {
             nulledArray[i] = i >= rear && i <= front ? array[i] : null;
@@ -51,17 +51,17 @@ public class Queue<T> implements Iterable<T>, StateFull {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        return Arrays.stream(getNulledArray()).iterator();
+        return Arrays.asList(getNulledArray()).iterator();
     }
 
     @Override
     public void forEach(Consumer<? super T> action) {
-        Arrays.stream(getNulledArray()).forEach(action);
+        Arrays.asList(getNulledArray()).forEach(action);
     }
 
     @Override
     public Spliterator<T> spliterator() {
-        return Arrays.stream(getNulledArray()).spliterator();
+        return Arrays.asList(getNulledArray()).spliterator();
     }
 
     @Override

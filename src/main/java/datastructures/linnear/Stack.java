@@ -50,17 +50,17 @@ public class Stack<T> implements Iterable<T>, StateFull {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        return Arrays.stream(getNulledArray()).iterator();
+        return Arrays.asList(getNulledArray()).iterator();
     }
 
     @Override
     public void forEach(Consumer<? super T> action) {
-        Arrays.stream(getNulledArray()).forEach(action);
+        Arrays.asList(getNulledArray()).forEach(action);
     }
 
     @Override
     public Spliterator<T> spliterator() {
-        return Arrays.stream(getNulledArray()).spliterator();
+        return Arrays.asList(getNulledArray()).spliterator();
     }
 
     @Override
