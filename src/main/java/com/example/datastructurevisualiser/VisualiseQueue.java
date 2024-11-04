@@ -76,7 +76,7 @@ public class VisualiseQueue {
 
         // Event handler for "Enqueue" button
         enqueueButton.setOnAction(e -> {
-            getInputFromUser("Enter data").ifPresent(data -> {
+            getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
                 try {
                     queue.enqueue(data);
                     visualizeQueue(); // Update visualization

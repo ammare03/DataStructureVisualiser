@@ -82,7 +82,7 @@ public class VisualiseBinarySearchTree {
         // Button actions
         insertButton.setOnAction(e -> {
             try {
-                Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+                Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
                     binarySearchTree.insert(data);
                     visualizeTree(scene); // Update tree visualization after insertion
                 });
@@ -95,7 +95,7 @@ public class VisualiseBinarySearchTree {
         preorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.PREORDER));
         postorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.POSTORDER));
 
-        searchButton.setOnAction(_ -> getInputFromUser("Enter data to search").ifPresent(data -> new Alert(Alert.AlertType.INFORMATION, binarySearchTree.search(data) ? "Found!" : "Not found!", ButtonType.OK).show()));
+        searchButton.setOnAction(_ -> getInputFromUser("Enter data to search", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> new Alert(Alert.AlertType.INFORMATION, binarySearchTree.search(data) ? "Found!" : "Not found!", ButtonType.OK).show()));
 
         // VBox layout to center all components with consistent spacing
         VBox mainVBox = new VBox(10); // Set spacing between elements

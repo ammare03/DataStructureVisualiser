@@ -58,14 +58,15 @@ public class VisualiseStack {
 
         // Event handler for "Push" button
         pushButton.setOnAction(e -> {
-            getInputFromUser("Enter data").ifPresent(data -> {
-                try {
-                    stack.push(data);
-                    visualizeStack(); // Update visualization
-                } catch (OverflowException oe) {
-                    alertError(oe);
-                }
-            });
+            Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;")
+                    .ifPresent(data -> {
+                        try {
+                            stack.push(data);
+                            visualizeStack(); // Update visualization
+                        } catch (OverflowException oe) {
+                            alertError(oe);
+                        }
+                    });
         });
 
         // Event handler for "Pop" button

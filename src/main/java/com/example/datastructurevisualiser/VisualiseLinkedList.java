@@ -34,6 +34,13 @@ public class VisualiseLinkedList {
         };
     }
 
+    private static final String BACKGROUND_STYLE = "-fx-background-color: #3B1E54;";
+    private static final String DEFAULT_FONT_STYLE = "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;";
+
+    private static void styleDialog(DialogPane dialogPane, String fontStyle) {
+        dialogPane.setStyle(BACKGROUND_STYLE + fontStyle);
+    }
+
     public Scene createScene(Stage primaryStage) {
         // Create the title text
         Text title = new Text("Linked List");
@@ -77,12 +84,12 @@ public class VisualiseLinkedList {
         });
 
         // Add functionality for each linked list operation button
-        appendButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+        appendButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
             linkedList.append(data);
             visualizeList(); // Update visualization
         }));
 
-        prependButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+        prependButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
             linkedList.prepend(data);
             visualizeList(); // Update visualization
         }));
@@ -110,6 +117,7 @@ public class VisualiseLinkedList {
             Dialog<Pair<String, String>> dialog = new Dialog<>();
             dialog.setTitle("Input Index and Data");
             dialog.setHeaderText("Please enter the index and data.");
+            styleDialog(dialog.getDialogPane(), DEFAULT_FONT_STYLE);
 
             // Create the grid pane for input fields
             GridPane grid = new GridPane();
@@ -152,7 +160,7 @@ public class VisualiseLinkedList {
             });
         });
 
-        removeButton.setOnAction(_ -> getInputFromUser("Enter index").ifPresent(index -> {
+        removeButton.setOnAction(_ -> getInputFromUser("Enter index", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(index -> {
             try {
                 linkedList.remove(Integer.parseInt(index));
                 visualizeList();
@@ -260,13 +268,13 @@ public class VisualiseLinkedList {
                     MenuItem addAfter = new MenuItem("Add after");
                     MenuItem removeNode = new MenuItem("Remove node");
                     addBefore.setOnAction(_ -> {
-                        Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+                        Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
                             linkedList.addBefore(data.trim(), node.getId());
                             visualizeList();
                         });
                     });
                     addAfter.setOnAction(_ -> {
-                        Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+                        Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
                             linkedList.addAfter(data.trim(), node.getId());
                             visualizeList();
                         });

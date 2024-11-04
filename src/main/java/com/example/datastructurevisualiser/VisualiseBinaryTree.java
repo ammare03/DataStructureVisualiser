@@ -290,11 +290,11 @@ public class VisualiseBinaryTree {
                 MenuItem assignLeft = new MenuItem("Assign left");
                 MenuItem assignRight = new MenuItem("Assign right");
                 MenuItem removeNode = new MenuItem("Remove node");
-                assignLeft.setOnAction(_ -> getInputFromUser("Enter data").ifPresent(data -> {
+                assignLeft.setOnAction(_ -> getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
                     binaryTree.assignLeft(data.trim(), id);
                     visualizeTree(scene);
                 }));
-                assignRight.setOnAction(_ -> getInputFromUser("Enter data").ifPresent(data -> {
+                assignRight.setOnAction(_ -> getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
                     binaryTree.assignRight(data.trim(), id);
                     visualizeTree(scene);
                 }));
