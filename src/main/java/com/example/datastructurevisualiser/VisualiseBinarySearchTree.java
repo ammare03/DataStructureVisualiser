@@ -95,7 +95,27 @@ public class VisualiseBinarySearchTree {
         preorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.PREORDER));
         postorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.POSTORDER));
 
-        searchButton.setOnAction(_ -> getInputFromUser("Enter data to search", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> new Alert(Alert.AlertType.INFORMATION, binarySearchTree.search(data) ? "Found!" : "Not found!", ButtonType.OK).show()));
+        searchButton.setOnAction(_ ->
+                getInputFromUser("Enter data to search", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;")
+                        .ifPresent(data -> {
+                            // Create an alert for search result
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION, binarySearchTree.search(data) ? "Found!" : "Not found!", ButtonType.OK);
+
+                            // Customize the dialog pane for background and text colors
+                            DialogPane dialogPane = alert.getDialogPane();
+                            dialogPane.setStyle("-fx-background-color: #3B1E54; -fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;");
+
+                            // Apply custom font and text color to the content text within the DialogPane
+                            dialogPane.lookup(".content.label").setStyle("-fx-text-fill: #EEEEEE; -fx-font-family: 'Verdana';");
+
+                            // Retrieve the OK button and apply custom styling
+                            Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+                            okButton.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-family: 'Verdana';");
+
+                            // Show the alert
+                            alert.showAndWait();
+                        })
+        );
 
         // VBox layout to center all components with consistent spacing
         VBox mainVBox = new VBox(10); // Set spacing between elements
@@ -141,7 +161,7 @@ public class VisualiseBinarySearchTree {
         traverseNextButton.setOnAction(_ -> {
             if (i.hasNext()) {
                 BaseTree.Node<String> node = i.next();
-                traversalResultText.setText(traversalResultText.getText() + " " + node);
+                traversalResultText.setText(traversalResultText.getText() + " " + node.getData());
                 nodes.forEach((id, circle) -> {
                     if (id.equals(node.getId())) {
                         circle.setStroke(Color.YELLOW);
@@ -171,6 +191,10 @@ public class VisualiseBinarySearchTree {
         double sceneWidth = scene.getWidth(); // Get current scene width
         AnchorPane.setLeftAnchor(treePane, (sceneWidth - treePane.getWidth()) / 2);
         AnchorPane.setRightAnchor(treePane, (sceneWidth - treePane.getWidth()) / 2);
+    }
+
+    private void setMenuItemStyle(MenuItem item) {
+        item.setStyle("-fx-background-color: #3B1E54; -fx-text-fill: #D4BEE4; -fx-font-family: 'Verdana'; -fx-font-weight: bold; -fx-padding: 10px;");
     }
 
     // Recursive method to display the binary tree with accurate positioning and lines
@@ -211,8 +235,12 @@ public class VisualiseBinarySearchTree {
         }
 
         nodePane.setOnMouseClicked(e -> {
-            if(e.getButton().toString().equals("SECONDARY")) {
+            if (e.getButton().toString().equals("SECONDARY")) {
                 MenuItem removeNode = new MenuItem("Remove node");
+
+                // Apply style to the removeNode menu item
+                setMenuItemStyle(removeNode);
+
                 removeNode.setOnAction(_ -> {
                     try {
                         binarySearchTree.remove(id);
@@ -221,9 +249,13 @@ public class VisualiseBinarySearchTree {
                         alertError(nie);
                     }
                 });
-                new ContextMenu(
-                        removeNode
-                ).show(circle,e.getScreenX(),e.getSceneY());
+
+                // Create and style the context menu
+                ContextMenu contextMenu = new ContextMenu(removeNode);
+                contextMenu.setStyle("-fx-background-color: #3B1E54; -fx-padding: 10px;"); // Context menu style
+
+                // Show the context menu
+                contextMenu.show(circle, e.getScreenX(), e.getSceneY());
             }
         });
 
