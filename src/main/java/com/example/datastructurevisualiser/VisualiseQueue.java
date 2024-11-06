@@ -72,9 +72,9 @@ public class VisualiseQueue {
         // Event handlers for buttons
         backButton.setOnAction(e -> primaryStage.setScene(new DataStructureVisualiser().createScene(primaryStage)));
         enqueueButton.setOnAction(e -> {
-            getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
+            getInputFromUser("Enter data").ifPresent(data -> {
                 try {
-                    queue.enqueue(data);
+                    queue.enqueue(data.trim());
                     visualizeQueue();
                 } catch (OverflowException oe) {
                     alertError(oe);

@@ -11,18 +11,6 @@ public class BinaryTree<T> extends BaseTree<T> {
         super(root);
     }
 
-    public UUID assignLeft(T data) {
-        UUID newId = UUID.randomUUID();
-        root.left = new Node<>(newId, data, null, null);
-        return newId;
-    }
-
-    public UUID assignRight(T data) {
-        UUID newId = UUID.randomUUID();
-        root.right = new Node<>(newId, data, null, null);
-        return newId;
-    }
-
     public UUID assignLeft(T data, UUID id) {
         UUID newId = UUID.randomUUID();
         for (Node<T> i : this) {

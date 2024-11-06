@@ -85,13 +85,13 @@ public class VisualiseLinkedList {
         });
 
         // Add functionality for each linked list operation button
-        appendButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
-            linkedList.append(data);
+        appendButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+            linkedList.append(data.trim());
             visualizeList(); // Update visualization
         }));
 
-        prependButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
-            linkedList.prepend(data);
+        prependButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+            linkedList.prepend(data.trim());
             visualizeList(); // Update visualization
         }));
 
@@ -171,7 +171,7 @@ public class VisualiseLinkedList {
                 String index = pair.getKey();
                 String data = pair.getValue();
                 try {
-                    linkedList.add(data, Integer.parseInt(index));
+                    linkedList.add(data.trim(), Integer.parseInt(index));
                     visualizeList();
                 } catch (IllegalArgumentException e) {
                     alertError(e);
@@ -180,7 +180,7 @@ public class VisualiseLinkedList {
         });
 
 
-        removeButton.setOnAction(_ -> getInputFromUser("Enter index", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(index -> {
+        removeButton.setOnAction(_ -> getInputFromUser("Enter index").ifPresent(index -> {
             try {
                 linkedList.remove(Integer.parseInt(index));
                 visualizeList();
@@ -300,13 +300,13 @@ public class VisualiseLinkedList {
 
                             // Set action handlers
                             addBefore.setOnAction(_ -> {
-                                Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
+                                Utilities.getInputFromUser("Enter data").ifPresent(data -> {
                                     linkedList.addBefore(data.trim(), node.getId());
                                     visualizeList();
                                 });
                             });
                             addAfter.setOnAction(_ -> {
-                                Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
+                                Utilities.getInputFromUser("Enter data").ifPresent(data -> {
                                     linkedList.addAfter(data.trim(), node.getId());
                                     visualizeList();
                                 });

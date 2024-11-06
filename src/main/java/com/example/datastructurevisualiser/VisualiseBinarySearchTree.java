@@ -23,8 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.example.datastructurevisualiser.Utilities.alertError;
-import static com.example.datastructurevisualiser.Utilities.getInputFromUser;
+import static com.example.datastructurevisualiser.Utilities.*;
 
 public class VisualiseBinarySearchTree {
     Scene scene;
@@ -82,7 +81,7 @@ public class VisualiseBinarySearchTree {
         // Button actions
         insertButton.setOnAction(e -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
             try {
-                binarySearchTree.insert(data);
+                binarySearchTree.insert(data.trim());
                 visualizeTree(scene); // Update tree visualization after insertion
             } catch (IllegalArgumentException iae) {
                 alertError(iae);
@@ -93,7 +92,14 @@ public class VisualiseBinarySearchTree {
         preorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.PREORDER));
         postorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.POSTORDER));
 
-        searchButton.setOnAction(_ -> getInputFromUser("Enter data to search").ifPresent(data -> new Alert(Alert.AlertType.INFORMATION, binarySearchTree.search(data) ? "Found!" : "Not found!", ButtonType.OK).show()));
+        searchButton.setOnAction(_ -> getInputFromUser("Enter data to search").ifPresent(data -> {
+            UUID id = binarySearchTree.search(data);
+            if (id == null) {
+                new Alert(Alert.AlertType.INFORMATION, "Not found!", ButtonType.OK).show();
+            } else {
+                nodes.get(id).setStroke(Color.YELLOW);
+            }
+        }));
 
         // VBox layout to center all components with consistent spacing
         VBox mainVBox = new VBox(10); // Set spacing between elements
@@ -139,7 +145,7 @@ public class VisualiseBinarySearchTree {
         traverseNextButton.setOnAction(_ -> {
             if (i.hasNext()) {
                 BaseTree.Node<String> node = i.next();
-                traversalResultText.setText(traversalResultText.getText() + " " + node);
+                traversalResultText.setText(traversalResultText.getText() + " " + node.getData());
                 nodes.forEach((id, circle) -> {
                     if (id.equals(node.getId())) {
                         circle.setStroke(Color.YELLOW);
@@ -211,14 +217,10 @@ public class VisualiseBinarySearchTree {
         nodePane.setOnMouseClicked(e -> {
             if(e.getButton().toString().equals("SECONDARY")) {
                 MenuItem removeNode = new MenuItem("Remove node");
-                removeNode.setOnAction(_ -> {
-                    try {
-                        binarySearchTree.remove(id);
-                        visualizeTree(scene);
-                    } catch (NotImplementedException nie) {
-                        alertError(nie);
-                    }
-                });
+                removeNode.setOnAction(_ -> getChoiceFromUser("Deletion Type", "Select the type of deletion", BinarySearchTree.Deletion.SUCCESSOR, BinarySearchTree.Deletion.PREDECESSOR).ifPresent(deletionMethod -> {
+                    binarySearchTree.remove(id, deletionMethod);
+                    visualizeTree(scene);
+                }));
                 new ContextMenu(
                         removeNode
                 ).show(circle,e.getScreenX(),e.getSceneY());

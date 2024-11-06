@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -20,7 +19,7 @@ public class Utilities {
                 "-fx-font-weight: bold; -fx-padding: 10px 20px;");
     }
 
-    public static Optional<String> getInputFromUser(String contentText, String fontStyle) {
+    public static Optional<String> getInputFromUser(String contentText) {
         TextInputDialog inputDialog = new TextInputDialog();
 
         // Create a new Label with the desired text color
@@ -40,7 +39,7 @@ public class Utilities {
         dialogPane.setContent(hbox); // Set the HBox as the content
 
         // Style the dialog pane
-        styleDialog(dialogPane, fontStyle);
+        styleDialog(dialogPane, "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;");
 
         // Style the buttons after the dialog is shown
         Platform.runLater(() -> {
@@ -100,7 +99,7 @@ public class Utilities {
         return state.toString();
     }
 
-    public static <T> Optional<T> getChoiceFromUser(String title, String headerText, String fontStyle, T... choices) {
+    public static <T> Optional<T> getChoiceFromUser(String title, String headerText, T... choices) {
         // Create the ChoiceDialog with the default choice and available choices
         ChoiceDialog<T> dialog = new ChoiceDialog<>(choices[0], Arrays.asList(choices));
         dialog.setTitle(title);
@@ -123,7 +122,7 @@ public class Utilities {
         dialogPane.setContent(hbox); // Set the HBox as the content
 
         // Style the dialog pane
-        styleDialog(dialogPane, fontStyle);
+        styleDialog(dialogPane, "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;");
 
         // Style the buttons after the dialog is shown
         Platform.runLater(() -> {

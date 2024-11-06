@@ -37,13 +37,11 @@ public class DataStructureVisualiser extends Application {
         Button binarySearchTreeButton = createStyledButton("Binary Search Tree");
         Button binaryTreeButton = createStyledButton("Binary Tree");
 
-        final String FONT_STYLE = "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;";
-
         arrayButton.setOnAction(_ -> primaryStage.setScene(new VisualiseArray().createScene(primaryStage)));
 
         stackButton.setOnAction(_ -> {
             try {
-                Utilities.getInputFromUser("Enter stack capacity", FONT_STYLE)
+                Utilities.getInputFromUser("Enter stack capacity")
                         .ifPresent(capacity -> primaryStage.setScene(new VisualiseStack(Integer.parseInt(capacity)).createScene(primaryStage)));
             } catch (IllegalArgumentException iae) {
                 Utilities.alertError(iae);
@@ -52,9 +50,9 @@ public class DataStructureVisualiser extends Application {
 
         queueButton.setOnAction(_ -> {
             try {
-                Utilities.getChoiceFromUser("Circular Queue Type", "Select the type of circular queue", FONT_STYLE,
+                Utilities.getChoiceFromUser("Circular Queue Type", "Select the type of circular queue",
                                 VisualiseQueue.Choice.NORMAL_QUEUE, VisualiseQueue.Choice.CIRCULAR_QUEUE)
-                        .ifPresent(choice -> Utilities.getInputFromUser("Enter queue capacity", FONT_STYLE)
+                        .ifPresent(choice -> Utilities.getInputFromUser("Enter queue capacity")
                                 .ifPresent(capacity -> primaryStage.setScene(new VisualiseQueue(Integer.parseInt(capacity), choice).createScene(primaryStage))));
             } catch (IllegalArgumentException iae) {
                 Utilities.alertError(iae);
@@ -62,16 +60,16 @@ public class DataStructureVisualiser extends Application {
         });
 
         linkedListButton.setOnAction(_ -> {
-            Utilities.getChoiceFromUser("Linked List Type", "Select the type of linked list", FONT_STYLE,
+            Utilities.getChoiceFromUser("Linked List Type", "Select the type of linked list",
                             VisualiseLinkedList.Choice.SINGLY_LINKED_LIST, VisualiseLinkedList.Choice.DOUBLY_LINKED_LIST)
-                    .ifPresent(choice -> Utilities.getInputFromUser("Enter head", FONT_STYLE)
+                    .ifPresent(choice -> Utilities.getInputFromUser("Enter head")
                             .ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head, choice).createScene(primaryStage))));
         });
 
-        binarySearchTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root", FONT_STYLE)
+        binarySearchTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root")
                 .ifPresent(root -> primaryStage.setScene(new VisualiseBinarySearchTree(root).createScene(primaryStage))));
 
-        binaryTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root", FONT_STYLE)
+        binaryTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root")
                 .ifPresent(root -> primaryStage.setScene(new VisualiseBinaryTree(root).createScene(primaryStage))));
 
         HBox hbox = new HBox(20);

@@ -58,10 +58,10 @@ public class VisualiseStack {
 
         // Event handler for "Push" button
         pushButton.setOnAction(e -> {
-            Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;")
+            Utilities.getInputFromUser("Enter data")
                     .ifPresent(data -> {
                         try {
-                            stack.push(data);
+                            stack.push(data.trim());
                             visualizeStack(); // Update visualization
                         } catch (OverflowException oe) {
                             alertError(oe);

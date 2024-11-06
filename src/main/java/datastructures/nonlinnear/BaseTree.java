@@ -66,7 +66,7 @@ public abstract class BaseTree<T> implements Traversable<BaseTree.Node<T>>, Stat
 
     public static class Node<T> implements StateFull {
         protected final UUID id;
-        protected final T data;
+        protected T data;
         protected Node<T> left;
         protected Node<T> right;
 
