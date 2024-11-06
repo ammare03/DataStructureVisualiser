@@ -80,16 +80,14 @@ public class VisualiseBinarySearchTree {
         backButton.setOnAction(e -> primaryStage.setScene(new DataStructureVisualiser().createScene(primaryStage)));
 
         // Button actions
-        insertButton.setOnAction(e -> {
+        insertButton.setOnAction(e -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
             try {
-                Utilities.getInputFromUser("Enter data").ifPresent(data -> {
-                    binarySearchTree.insert(data);
-                    visualizeTree(scene); // Update tree visualization after insertion
-                });
-            } catch (NumberFormatException ex) {
-                System.out.println("Please enter a valid integer.");
+                binarySearchTree.insert(data);
+                visualizeTree(scene); // Update tree visualization after insertion
+            } catch (IllegalArgumentException iae) {
+                alertError(iae);
             }
-        });
+        }));
 
         inorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.INORDER));
         preorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.PREORDER));

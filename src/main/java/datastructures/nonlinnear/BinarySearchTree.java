@@ -52,5 +52,24 @@ public class BinarySearchTree<T extends Comparable<T>> extends BaseTree<T> {
 
     public void remove(UUID id) throws NotImplementedException {
         throw new NotImplementedException("Not yet implemented");
+
+    }
+
+    private NodeParent<T> getNodeParent(UUID id) {
+
+        return null;
+    }
+
+    private NodeParent<T> getNodeParentHelper(Node<T> node) {
+
+        return null;
+    }
+
+    private record NodeParent<T>(Node<T> parent, ChildPosition child) {
+    }
+
+    private enum ChildPosition {
+        LEFT,
+        RIGHT
     }
 }
