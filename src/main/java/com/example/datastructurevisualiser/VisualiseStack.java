@@ -58,14 +58,15 @@ public class VisualiseStack {
 
         // Event handler for "Push" button
         pushButton.setOnAction(e -> {
-            getInputFromUser("Enter data").ifPresent(data -> {
-                try {
-                    stack.push(data);
-                    visualizeStack(); // Update visualization
-                } catch (OverflowException oe) {
-                    alertError(oe);
-                }
-            });
+            Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;")
+                    .ifPresent(data -> {
+                        try {
+                            stack.push(data);
+                            visualizeStack(); // Update visualization
+                        } catch (OverflowException oe) {
+                            alertError(oe);
+                        }
+                    });
         });
 
         // Event handler for "Pop" button
@@ -86,8 +87,9 @@ public class VisualiseStack {
         // Initialize TextArea for stack state display
         stateTextArea.setEditable(false);
         stateTextArea.setWrapText(true);
-        stateTextArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #EEEEEE; -fx-control-inner-background: #3B1E54;");
-        stateTextArea.setPrefSize(300, 200); // Set width to half
+        stateTextArea.setStyle("-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE; -fx-font-weight: bold; " +
+                "-fx-control-inner-background: #3B1E54; -fx-font-size: 14px;");
+        stateTextArea.setPrefSize(300, 200); // Set fixed size for the TextArea
 
         // Main pane setup
         AnchorPane root = new AnchorPane();
@@ -120,7 +122,7 @@ public class VisualiseStack {
         visualizeStack();
 
         // Create and return the scene
-        return new Scene(root, 1040, 600);
+        return new Scene(root, 1270, 660);
     }
 
     // Method to style buttons consistently

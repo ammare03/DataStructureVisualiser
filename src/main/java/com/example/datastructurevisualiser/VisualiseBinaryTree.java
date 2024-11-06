@@ -15,6 +15,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+import javafx.geometry.Insets;
 
 import java.util.*;
 
@@ -79,23 +80,43 @@ public class VisualiseBinaryTree {
         createFromTraversalsButton.setOnAction(_ -> {
             // Create the dialog
             Dialog<Pair<String, String>> dialog = new Dialog<>();
-            dialog.setTitle("Input traversals");
+            dialog.setTitle("Input Traversals");
             dialog.setHeaderText("Please enter the inorder and preorder traversals.");
+
+            // Style the dialog's background and text
+            DialogPane dialogPane = dialog.getDialogPane();
+            dialogPane.setStyle("-fx-background-color: #3B1E54; -fx-text-fill: #EEEEEE; -fx-font-family: 'Verdana';");
 
             // Create the grid pane for input fields
             GridPane grid = new GridPane();
+            grid.setVgap(10); // Vertical spacing between rows
+            grid.setHgap(10); // Horizontal spacing between columns
             TextField inorderField = new TextField();
             TextField preorderField = new TextField();
-            grid.add(new Label("Inorder:"), 0, 0);
+
+            // Create labels and style them with the desired text color
+            Label inorderLabel = new Label("Inorder:");
+            Label preorderLabel = new Label("Preorder:");
+            inorderLabel.setStyle("-fx-text-fill: #EEEEEE;");
+            preorderLabel.setStyle("-fx-text-fill: #EEEEEE;");
+
+            grid.add(inorderLabel, 0, 0);
             grid.add(inorderField, 1, 0);
-            grid.add(new Label("Preorder:"), 0, 1);
+            grid.add(preorderLabel, 0, 1);
             grid.add(preorderField, 1, 1);
 
             // Set the grid pane in the dialog
-            dialog.getDialogPane().setContent(grid);
+            dialogPane.setContent(grid);
 
             // Add buttons to the dialog
-            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+            dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            // Style the OK and Cancel buttons
+            Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
+            Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
+            String buttonStyle = "-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-family: 'Verdana';";
+            okButton.setStyle(buttonStyle);
+            cancelButton.setStyle(buttonStyle);
 
             // Handle the OK button action
             dialog.setResultConverter(dialogButton -> {
@@ -137,12 +158,15 @@ public class VisualiseBinaryTree {
             });
         });
 
+
+
         // VBox layout to center all components with consistent spacing
         VBox mainVBox = new VBox(10); // Set spacing between elements
         mainVBox.setStyle("-fx-background-color: #3B1E54; -fx-alignment: center; -fx-pref-width: 100%; -fx-pref-height: 600;");
 
         // Adding elements to main VBox
         mainVBox.getChildren().addAll(title, traversalResultText, treePane, inputBox);
+        VBox.setMargin(treePane, new Insets(10, 0, 0, 0)); // Adds 5 pixels of top margin
 
         // AnchorPane for the tree visualization
         treePane.setPrefHeight(400); // Set preferred height for the tree pane
@@ -166,7 +190,8 @@ public class VisualiseBinaryTree {
         // Initialize TextArea for linked list state display
         stateTextArea.setEditable(false);
         stateTextArea.setWrapText(true); // Wrap text for better readability
-        stateTextArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #EEEEEE; -fx-control-inner-background: #3B1E54;");
+        stateTextArea.setStyle("-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE; -fx-font-weight: bold; " +
+                "-fx-control-inner-background: #3B1E54; -fx-font-size: 14px;");
         stateTextArea.setPrefSize(300, 200); // Set fixed size for the TextArea
 
         // Position the stateTextArea at the bottom right of the AnchorPane
@@ -234,6 +259,10 @@ public class VisualiseBinaryTree {
         stateTextArea.setText("State:-\n" + getState(binaryTree));
     }
 
+    private void setMenuItemStyle(MenuItem item) {
+        item.setStyle("-fx-background-color: #3B1E54; -fx-text-fill: #D4BEE4; -fx-font-family: 'Verdana'; -fx-font-weight: bold; -fx-padding: 10px;");
+    }
+
     // Recursive method to display the binary tree with accurate positioning and lines
     private void displayTree(Node<String> node, double x, double y, double offset, UUID id) {
         if (node == null) return;
@@ -286,15 +315,22 @@ public class VisualiseBinaryTree {
         }
 
         nodePane.setOnMouseClicked(e -> {
-            if(e.getButton().toString().equals("SECONDARY")) {
+            if (e.getButton().toString().equals("SECONDARY")) {
                 MenuItem assignLeft = new MenuItem("Assign left");
                 MenuItem assignRight = new MenuItem("Assign right");
                 MenuItem removeNode = new MenuItem("Remove node");
-                assignLeft.setOnAction(_ -> getInputFromUser("Enter data").ifPresent(data -> {
+
+                // Apply styles to the menu items
+                setMenuItemStyle(assignLeft);
+                setMenuItemStyle(assignRight);
+                setMenuItemStyle(removeNode);
+
+                // Set action handlers
+                assignLeft.setOnAction(_ -> getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
                     binaryTree.assignLeft(data.trim(), id);
                     visualizeTree(scene);
                 }));
-                assignRight.setOnAction(_ -> getInputFromUser("Enter data").ifPresent(data -> {
+                assignRight.setOnAction(_ -> getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
                     binaryTree.assignRight(data.trim(), id);
                     visualizeTree(scene);
                 }));
@@ -306,7 +342,12 @@ public class VisualiseBinaryTree {
                         alertError(ex);
                     }
                 });
-                new ContextMenu(assignLeft, assignRight, removeNode).show(circle, e.getScreenX(), e.getSceneY());
+
+                ContextMenu contextMenu = new ContextMenu(assignLeft, assignRight, removeNode);
+                contextMenu.setStyle("-fx-background-color: #3B1E54; -fx-padding: 10px;"); // Context menu style
+
+                // Show the context menu
+                contextMenu.show(circle, e.getScreenX(), e.getSceneY());
             }
         });
 

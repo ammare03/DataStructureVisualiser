@@ -16,25 +16,20 @@ public class DataStructureVisualiser extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Set up the main scene
         primaryStage.setScene(createScene(primaryStage));
         primaryStage.setTitle("Data Structure Visualiser");
         primaryStage.show();
     }
 
-    // Method to create the main scene
     public Scene createScene(Stage primaryStage) {
-        // Create the title text with larger font and better font family
         Text title = new Text("Data Structure Visualiser");
-        title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));  // Increased font size to 40
-        title.setFill(Color.web("#EEEEEE"));  // Set text color
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
+        title.setFill(Color.web("#EEEEEE"));
 
-        // Create a VBox to hold the title and buttons
-        VBox vbox = new VBox(40);  // Increased spacing for title and button row
-        vbox.setStyle("-fx-background-color: #3B1E54; -fx-alignment: center;"); // Background and centering
+        VBox vbox = new VBox(40);
+        vbox.setStyle("-fx-background-color: #3B1E54; -fx-alignment: center;");
         vbox.getChildren().add(title);
 
-        // Create buttons for each data structure
         Button arrayButton = createStyledButton("Array");
         Button stackButton = createStyledButton("Stack");
         Button queueButton = createStyledButton("Queue");
@@ -42,39 +37,52 @@ public class DataStructureVisualiser extends Application {
         Button binarySearchTreeButton = createStyledButton("Binary Search Tree");
         Button binaryTreeButton = createStyledButton("Binary Tree");
 
-        // Add action to the buttons to switch scenes
+        final String FONT_STYLE = "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;";
+
         arrayButton.setOnAction(_ -> primaryStage.setScene(new VisualiseArray().createScene(primaryStage)));
+
         stackButton.setOnAction(_ -> {
             try {
-                Utilities.getInputFromUser("Enter stack capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseStack(Integer.parseInt(capacity)).createScene(primaryStage)));
+                Utilities.getInputFromUser("Enter stack capacity", FONT_STYLE)
+                        .ifPresent(capacity -> primaryStage.setScene(new VisualiseStack(Integer.parseInt(capacity)).createScene(primaryStage)));
             } catch (IllegalArgumentException iae) {
                 Utilities.alertError(iae);
             }
         });
+
         queueButton.setOnAction(_ -> {
             try {
-                Utilities.getChoiceFromUser("Circular Queue Type", "Select the type of circular queue", VisualiseQueue.Choice.NORMAL_QUEUE, VisualiseQueue.Choice.CIRCULAR_QUEUE).ifPresent(choice -> Utilities.getInputFromUser("Enter queue capacity").ifPresent(capacity -> primaryStage.setScene(new VisualiseQueue(Integer.parseInt(capacity), choice).createScene(primaryStage))));
+                Utilities.getChoiceFromUser("Circular Queue Type", "Select the type of circular queue", FONT_STYLE,
+                                VisualiseQueue.Choice.NORMAL_QUEUE, VisualiseQueue.Choice.CIRCULAR_QUEUE)
+                        .ifPresent(choice -> Utilities.getInputFromUser("Enter queue capacity", FONT_STYLE)
+                                .ifPresent(capacity -> primaryStage.setScene(new VisualiseQueue(Integer.parseInt(capacity), choice).createScene(primaryStage))));
             } catch (IllegalArgumentException iae) {
                 Utilities.alertError(iae);
             }
         });
-        linkedListButton.setOnAction(_ -> Utilities.getChoiceFromUser("Linked List Type", "Select the type of linked list", VisualiseLinkedList.Choice.SINGLY_LINKED_LIST, VisualiseLinkedList.Choice.DOUBLY_LINKED_LIST).ifPresent(choice -> Utilities.getInputFromUser("Enter head").ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head, choice).createScene(primaryStage)))));
-        binarySearchTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinarySearchTree(root).createScene(primaryStage))));
-        binaryTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root").ifPresent(root -> primaryStage.setScene(new VisualiseBinaryTree(root).createScene(primaryStage))));
 
-        // Create an HBox to hold the buttons horizontally with spacing
-        HBox hbox = new HBox(20);  // Horizontal spacing between buttons
-        hbox.setStyle("-fx-alignment: center;");  // Center the HBox within the VBox
+        linkedListButton.setOnAction(_ -> {
+            Utilities.getChoiceFromUser("Linked List Type", "Select the type of linked list", FONT_STYLE,
+                            VisualiseLinkedList.Choice.SINGLY_LINKED_LIST, VisualiseLinkedList.Choice.DOUBLY_LINKED_LIST)
+                    .ifPresent(choice -> Utilities.getInputFromUser("Enter head", FONT_STYLE)
+                            .ifPresent(head -> primaryStage.setScene(new VisualiseLinkedList(head, choice).createScene(primaryStage))));
+        });
+
+        binarySearchTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root", FONT_STYLE)
+                .ifPresent(root -> primaryStage.setScene(new VisualiseBinarySearchTree(root).createScene(primaryStage))));
+
+        binaryTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root", FONT_STYLE)
+                .ifPresent(root -> primaryStage.setScene(new VisualiseBinaryTree(root).createScene(primaryStage))));
+
+        HBox hbox = new HBox(20);
+        hbox.setStyle("-fx-alignment: center;");
         hbox.getChildren().addAll(arrayButton, stackButton, queueButton, linkedListButton, binarySearchTreeButton, binaryTreeButton);
 
-        // Add HBox of buttons to the VBox
         vbox.getChildren().add(hbox);
 
-        // Return the Scene object with the desired dimensions
-        return new Scene(new StackPane(vbox), 1270, 660); // Set window size to 1270x660
+        return new Scene(new StackPane(vbox), 1270, 660);
     }
 
-    // Helper method to create styled buttons
     private Button createStyledButton(String text) {
         Button button = new Button(text);
         button.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54; -fx-font-size: 16px; " +

@@ -4,6 +4,7 @@ import datastructures.linnear.DoublyLinkedList;
 import datastructures.linnear.LinkedList;
 import datastructures.linnear.SinglyLinkedList;
 import exceptions.UnderflowException;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -32,6 +33,13 @@ public class VisualiseLinkedList {
             case SINGLY_LINKED_LIST -> new SinglyLinkedList<>(head);
             case DOUBLY_LINKED_LIST -> new DoublyLinkedList<>(head);
         };
+    }
+
+    private static final String BACKGROUND_STYLE = "-fx-background-color: #3B1E54;";
+    private static final String DEFAULT_FONT_STYLE = "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;";
+
+    private static void styleDialog(DialogPane dialogPane, String fontStyle) {
+        dialogPane.setStyle(BACKGROUND_STYLE + fontStyle);
     }
 
     public Scene createScene(Stage primaryStage) {
@@ -77,12 +85,12 @@ public class VisualiseLinkedList {
         });
 
         // Add functionality for each linked list operation button
-        appendButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+        appendButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
             linkedList.append(data);
             visualizeList(); // Update visualization
         }));
 
-        prependButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
+        prependButton.setOnAction(_ -> Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
             linkedList.prepend(data);
             visualizeList(); // Update visualization
         }));
@@ -110,14 +118,24 @@ public class VisualiseLinkedList {
             Dialog<Pair<String, String>> dialog = new Dialog<>();
             dialog.setTitle("Input Index and Data");
             dialog.setHeaderText("Please enter the index and data.");
+            styleDialog(dialog.getDialogPane(), DEFAULT_FONT_STYLE);
 
             // Create the grid pane for input fields
             GridPane grid = new GridPane();
             TextField indexField = new TextField();
             TextField dataField = new TextField();
-            grid.add(new Label("Index:"), 0, 0);
+
+            // Create and style labels
+            Label indexLabel = new Label("Index:");
+            indexLabel.setStyle("-fx-text-fill: #EEEEEE;"); // Set color for Index label
+
+            Label dataLabel = new Label("Data:");
+            dataLabel.setStyle("-fx-text-fill: #EEEEEE;"); // Set color for Data label
+
+            // Add labels and text fields to the grid pane
+            grid.add(indexLabel, 0, 0);
             grid.add(indexField, 1, 0);
-            grid.add(new Label("Data:"), 0, 1);
+            grid.add(dataLabel, 0, 1);
             grid.add(dataField, 1, 1);
             grid.setVgap(4);
             grid.setHgap(4);
@@ -125,8 +143,17 @@ public class VisualiseLinkedList {
             // Set the grid pane in the dialog
             dialog.getDialogPane().setContent(grid);
 
-            // Add buttons to the dialog
+            // Add ButtonType.OK and ButtonType.CANCEL to the dialog
             dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            // Retrieve the actual buttons and style them after they are added
+            Platform.runLater(() -> {
+                Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+                okButton.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54;");
+
+                Button cancelButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+                cancelButton.setStyle("-fx-background-color: #D4BEE4; -fx-text-fill: #3B1E54;");
+            });
 
             // Handle the OK button action
             dialog.setResultConverter(dialogButton -> {
@@ -152,7 +179,8 @@ public class VisualiseLinkedList {
             });
         });
 
-        removeButton.setOnAction(_ -> getInputFromUser("Enter index").ifPresent(index -> {
+
+        removeButton.setOnAction(_ -> getInputFromUser("Enter index", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(index -> {
             try {
                 linkedList.remove(Integer.parseInt(index));
                 visualizeList();
@@ -164,7 +192,8 @@ public class VisualiseLinkedList {
         // Initialize TextArea for linked list state display
         stateTextArea.setEditable(false);
         stateTextArea.setWrapText(true); // Wrap text for better readability
-        stateTextArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #EEEEEE; -fx-control-inner-background: #3B1E54;");
+        stateTextArea.setStyle("-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE; -fx-font-weight: bold; " +
+                "-fx-control-inner-background: #3B1E54; -fx-font-size: 14px;");
         stateTextArea.setPrefSize(300, 200); // Set fixed size for the TextArea
 
         // Create a new AnchorPane for the layout
@@ -209,6 +238,10 @@ public class VisualiseLinkedList {
                 "-fx-font-weight: bold; -fx-padding: 10px 20px;");
     }
 
+    private void setMenuItemStyle(MenuItem item) {
+        item.setStyle("-fx-background-color: #3B1E54; -fx-text-fill: #D4BEE4; -fx-font-family: 'Verdana'; -fx-font-weight: bold; -fx-padding: 10px;");
+    }
+
     // Visualize the linked list by adding rectangles representing linked list nodes
     private void visualizeList() {
         centerVBox.getChildren().clear(); // Clear current list visualization
@@ -218,71 +251,85 @@ public class VisualiseLinkedList {
         tempListBox.setAlignment(Pos.CENTER); // Center nodes within the HBox
 
         linkedList.forEach(node -> {
-            // Create rectangle for node representation
-            Rectangle rect = new Rectangle(100, 50); // Width and height of rectangle
-            rect.setFill(Color.web("#D4BEE4")); // Node color
+                    // Create rectangle for node representation
+                    Rectangle rect = new Rectangle(100, 50); // Width and height of rectangle
+                    rect.setFill(Color.web("#D4BEE4")); // Node color
 
-            // Text for node value
-            Text nodeText = new Text(node.getData());
-            nodeText.setFill(Color.web("#3B1E54"));
-            nodeText.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+                    // Text for node value
+                    Text nodeText = new Text(node.getData());
+                    nodeText.setFill(Color.web("#3B1E54"));
+                    nodeText.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
 
-            // Label for node information
-            Label nodeLabel = new Label(String.valueOf(node.hashCode()));
-            nodeLabel.setTextFill(Color.web("#EEEEEE"));
-            nodeLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 12));
+                    // Label for node information
+                    Label nodeLabel = new Label(String.valueOf(node.hashCode()));
+                    nodeLabel.setTextFill(Color.web("#EEEEEE"));
+                    nodeLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 12));
 
-            // StackPane to combine rectangle and text
-            StackPane stackPane = new StackPane();
-            stackPane.getChildren().addAll(rect, nodeText);
+                    // StackPane to combine rectangle and text
+                    StackPane stackPane = new StackPane();
+                    stackPane.getChildren().addAll(rect, nodeText);
 
-            Tooltip.install(stackPane, new Tooltip(getState(node)));
+                    Tooltip.install(stackPane, new Tooltip(getState(node)));
 
-            // VBox to stack the node and its label
-            VBox nodeBox = new VBox(5);
-            nodeBox.setAlignment(Pos.CENTER); // Center the stackPane and label
-            nodeBox.getChildren().addAll(stackPane, nodeLabel);
+                    // VBox to stack the node and its label
+                    VBox nodeBox = new VBox(5);
+                    nodeBox.setAlignment(Pos.CENTER); // Center the stackPane and label
+                    nodeBox.getChildren().addAll(stackPane, nodeLabel);
 
-            tempListBox.getChildren().add(nodeBox); // Add nodeBox (containing node and label) to HBox
+                    tempListBox.getChildren().add(nodeBox); // Add nodeBox (containing node and label) to HBox
 
-            // Draw line between nodes
-            if (node.getNext() != null) {
-                Line line = new Line(0, 25, 30, 25); // Line positioned vertically between nodes
-                line.setStroke(Color.web("#EEEEEE"));
-                line.setStrokeWidth(2);
-                tempListBox.getChildren().add(line); // Add line after the current node
-            }
+                    // Draw line between nodes
+                    if (node.getNext() != null) {
+                        Line line = new Line(0, 25, 30, 25); // Line positioned vertically between nodes
+                        line.setStroke(Color.web("#EEEEEE"));
+                        line.setStrokeWidth(2);
+                        tempListBox.getChildren().add(line); // Add line after the current node
+                    }
 
-            // Context menu for node interaction
-            stackPane.setOnMouseClicked(e -> {
-                if(e.getButton().toString().equals("SECONDARY")) {
-                    MenuItem addBefore = new MenuItem("Add before");
-                    MenuItem addAfter = new MenuItem("Add after");
-                    MenuItem removeNode = new MenuItem("Remove node");
-                    addBefore.setOnAction(_ -> {
-                        Utilities.getInputFromUser("Enter data").ifPresent(data -> {
-                            linkedList.addBefore(data.trim(), node.getId());
-                            visualizeList();
-                        });
-                    });
-                    addAfter.setOnAction(_ -> {
-                        Utilities.getInputFromUser("Enter data").ifPresent(data -> {
-                            linkedList.addAfter(data.trim(), node.getId());
-                            visualizeList();
-                        });
-                    });
-                    removeNode.setOnAction(_ -> {
-                        try {
-                            linkedList.remove(node.getId());
-                            visualizeList();
-                        } catch (UnderflowException ue) {
-                            Utilities.alertError(ue);
+                    // Context menu for node interaction
+                    stackPane.setOnMouseClicked(e -> {
+                        if (e.getButton().toString().equals("SECONDARY")) {
+                            MenuItem addBefore = new MenuItem("Add before");
+                            MenuItem addAfter = new MenuItem("Add after");
+                            MenuItem removeNode = new MenuItem("Remove node");
+
+                            // Apply styles to the menu items
+                            setMenuItemStyle(addBefore);
+                            setMenuItemStyle(addAfter);
+                            setMenuItemStyle(removeNode);
+
+                            // Set action handlers
+                            addBefore.setOnAction(_ -> {
+                                Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
+                                    linkedList.addBefore(data.trim(), node.getId());
+                                    visualizeList();
+                                });
+                            });
+                            addAfter.setOnAction(_ -> {
+                                Utilities.getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
+                                    linkedList.addAfter(data.trim(), node.getId());
+                                    visualizeList();
+                                });
+                            });
+                            removeNode.setOnAction(_ -> {
+                                try {
+                                    linkedList.remove(node.getId());
+                                    visualizeList();
+                                } catch (UnderflowException ue) {
+                                    Utilities.alertError(ue);
+                                }
+                            });
+
+                            // Create the context menu with styled menu items
+                            ContextMenu contextMenu = new ContextMenu(addBefore, addAfter, removeNode);
+                            contextMenu.setStyle("-fx-background-color: #3B1E54; -fx-padding: 10px;"); // Context menu style
+
+                            // Show the context menu
+                            contextMenu.show(rect, e.getScreenX(), e.getSceneY());
                         }
                     });
-                    new ContextMenu(addBefore, addAfter, removeNode).show(rect, e.getScreenX(), e.getSceneY());
-                }
-            });
-        });
+
+                });
 
         // Update stateTextArea with the current state of the linked list using getState()
         stateTextArea.setText("State:-\n" + getState(linkedList));

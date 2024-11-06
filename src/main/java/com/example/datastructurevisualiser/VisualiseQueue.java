@@ -51,42 +51,36 @@ public class VisualiseQueue {
 
         // Create a VBox for the main layout
         VBox mainVBox = new VBox();
-        mainVBox.setStyle("-fx-background-color: #3B1E54;"); // Set background color
-        mainVBox.setAlignment(Pos.CENTER); // Center the main VBox
-        mainVBox.setSpacing(20); // Space between components
+        mainVBox.setStyle("-fx-background-color: #3B1E54;");
+        mainVBox.setAlignment(Pos.CENTER);
+        mainVBox.setSpacing(20);
 
         // Add title to the main VBox
         mainVBox.getChildren().add(title);
 
-        // Create a VBox to center the queue visualization
-        centerQueueBox.setAlignment(Pos.CENTER); // Center the queue visualization
-        centerQueueBox.setStyle("-fx-pref-height: 400;"); // Set preferred height for vertical centering
-
-        // Configure queueBox to center horizontally
-        queueBox.setAlignment(Pos.CENTER); // Center the queue nodes
-        centerQueueBox.getChildren().add(queueBox); // Add queueBox to the center box
-        mainVBox.getChildren().add(centerQueueBox); // Add center box to main VBox
+        // Center the queue visualization
+        centerQueueBox.setAlignment(Pos.CENTER);
+        centerQueueBox.setStyle("-fx-pref-height: 400;");
+        queueBox.setAlignment(Pos.CENTER);
+        centerQueueBox.getChildren().add(queueBox);
+        mainVBox.getChildren().add(centerQueueBox);
 
         styleButton(enqueueButton);
         styleButton(dequeueButton);
         styleButton(backButton);
 
-        // Event handler for "Back" button
+        // Event handlers for buttons
         backButton.setOnAction(e -> primaryStage.setScene(new DataStructureVisualiser().createScene(primaryStage)));
-
-        // Event handler for "Enqueue" button
         enqueueButton.setOnAction(e -> {
-            getInputFromUser("Enter data").ifPresent(data -> {
+            getInputFromUser("Enter data", "-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE;").ifPresent(data -> {
                 try {
                     queue.enqueue(data);
-                    visualizeQueue(); // Update visualization
+                    visualizeQueue();
                 } catch (OverflowException oe) {
                     alertError(oe);
                 }
             });
         });
-
-        // Event handler for "Dequeue" button
         dequeueButton.setOnAction(e -> {
             try {
                 queue.dequeue();
@@ -96,39 +90,49 @@ public class VisualiseQueue {
             }
         });
 
-        // Input and button layout at the bottom
+        // HBox for buttons positioned at the bottom of the screen
         HBox inputBox = new HBox(10);
         inputBox.getChildren().addAll(enqueueButton, dequeueButton, backButton);
-        inputBox.setStyle("-fx-alignment: center;");
-        mainVBox.getChildren().add(inputBox); // Add the input box to main VBox
+        inputBox.setAlignment(Pos.CENTER);
 
-        // Initialize TextArea for queue state display
+        // TextArea to display the queue state
         stateTextArea.setEditable(false);
         stateTextArea.setWrapText(true);
-        stateTextArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #EEEEEE; -fx-control-inner-background: #3B1E54;");
-        stateTextArea.setPrefSize(300, 200); // Set width to half
+        stateTextArea.setStyle("-fx-font-family: 'Verdana'; -fx-text-fill: #EEEEEE; -fx-font-weight: bold; " +
+                "-fx-control-inner-background: #3B1E54; -fx-font-size: 14px;");
+        stateTextArea.setPrefSize(300, 200);
 
-        // Position the stateTextArea at the bottom right of the main VBox
-        AnchorPane.setRightAnchor(stateTextArea, 20.0);
-        AnchorPane.setTopAnchor(stateTextArea, 20.0);
-
-        // Main pane setup
+        // Main pane setup with AnchorPane for positioning
         AnchorPane root = new AnchorPane();
         root.setStyle("-fx-background-color: #3B1E54;");
 
-        // Add mainVBox to the AnchorPane
+        // Add main VBox at the top center
         AnchorPane.setTopAnchor(mainVBox, 20.0);
         AnchorPane.setLeftAnchor(mainVBox, 0.0);
         AnchorPane.setRightAnchor(mainVBox, 0.0);
         root.getChildren().add(mainVBox);
 
-        // Add the TextArea to the root AnchorPane
+        // Center the queueBox just above the buttons
+        AnchorPane.setBottomAnchor(centerQueueBox, 100.0);
+        AnchorPane.setLeftAnchor(centerQueueBox, 0.0);
+        AnchorPane.setRightAnchor(centerQueueBox, 0.0);
+        root.getChildren().add(centerQueueBox);
+
+        // Position inputBox with buttons at the bottom of the screen
+        AnchorPane.setBottomAnchor(inputBox, 20.0);
+        AnchorPane.setLeftAnchor(inputBox, 0.0);
+        AnchorPane.setRightAnchor(inputBox, 0.0);
+        root.getChildren().add(inputBox);
+
+        // Position stateTextArea at the top right of the screen
+        AnchorPane.setTopAnchor(stateTextArea, 20.0);
+        AnchorPane.setRightAnchor(stateTextArea, 20.0);
         root.getChildren().add(stateTextArea);
 
         visualizeQueue();
 
         // Create and return scene with specified dimensions
-        return new Scene(root, 1270, 660); // Set window size to 1270x660
+        return new Scene(root, 1270, 660);
     }
 
     // Method to style buttons consistently
@@ -139,41 +143,34 @@ public class VisualiseQueue {
 
     // Visualize the queue by adding rectangles representing queue nodes
     private void visualizeQueue() {
-        queueBox.getChildren().clear(); // Clear current queue visualization
+        queueBox.getChildren().clear();
 
-        AtomicInteger index = new AtomicInteger(0); // Initialize index tracker
+        AtomicInteger index = new AtomicInteger(0);
 
-        // Iterate over queue values and add visual nodes
         queue.forEach(current -> {
-            // Label displaying the index
             Label indexLabel = new Label(String.valueOf(index.getAndIncrement()));
-            indexLabel.setFont(Font.font("Verdana", 14)); // Not bold
-            indexLabel.setTextFill(Color.WHITE); // Set text color to white
+            indexLabel.setFont(Font.font("Verdana", 14));
+            indexLabel.setTextFill(Color.WHITE);
             indexLabel.setAlignment(Pos.CENTER);
-            indexLabel.setPadding(new Insets(5, 0, 0, 0)); // Add some padding for better spacing
+            indexLabel.setPadding(new Insets(5, 0, 0, 0));
 
-            // Rectangle representing the queue node
             Rectangle rect = new Rectangle(100, 50);
             rect.setFill(Color.web("#D4BEE4"));
             rect.setStroke(Color.web("#3B1E54"));
             rect.setStrokeWidth(2);
 
-            // Text displaying the value on the node
             Text valueText = new Text(current);
             valueText.setFill(Color.web("#3B1E54"));
             valueText.setFont(Font.font("Verdana", FontWeight.BOLD, 16));
 
-            // StackPane to combine rectangle and text
             StackPane stackPane = new StackPane(rect, valueText);
 
-            // VBox to stack the rectangle and index label vertically
             VBox nodeBox = new VBox(stackPane, indexLabel);
             nodeBox.setAlignment(Pos.CENTER);
 
-            queueBox.getChildren().add(nodeBox); // Add new nodes to the queue box
+            queueBox.getChildren().add(nodeBox);
         });
 
-        // Update stateTextArea with the current state of the queue using getState()
         stateTextArea.setText("State:-\n" + getState(queue));
 
         enqueueButton.setTooltip(new Tooltip(getState(() -> {
