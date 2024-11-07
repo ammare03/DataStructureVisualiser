@@ -182,6 +182,10 @@ public class VisualiseBinarySearchTree {
         AnchorPane.setRightAnchor(treePane, (sceneWidth - treePane.getWidth()) / 2);
     }
 
+    private void setMenuItemStyle(MenuItem item) {
+        item.setStyle("-fx-background-color: #3B1E54; -fx-text-fill: #D4BEE4; -fx-font-family: 'Verdana'; -fx-font-weight: bold; -fx-padding: 10px;");
+    }
+
     // Recursive method to display the binary tree with accurate positioning and lines
     private void displayTree(BaseTree.Node<Integer> node, double x, double y, double offset, UUID id) {
         if (node == null) return;
@@ -220,15 +224,23 @@ public class VisualiseBinarySearchTree {
         }
 
         nodePane.setOnMouseClicked(e -> {
-            if(e.getButton().toString().equals("SECONDARY")) {
+            if (e.getButton().toString().equals("SECONDARY")) {
                 MenuItem removeNode = new MenuItem("Remove node");
+
+                // Apply styles to the menu items
+                setMenuItemStyle(removeNode);
+
+                // Set up the context menu with styling
+                ContextMenu contextMenu = new ContextMenu(removeNode);
+                contextMenu.setStyle("-fx-background-color: #3B1E54; -fx-padding: 10px;");
+
                 removeNode.setOnAction(_ -> getChoiceFromUser("Deletion Type", "Select the type of deletion", BinarySearchTree.Deletion.SUCCESSOR, BinarySearchTree.Deletion.PREDECESSOR).ifPresent(deletionMethod -> {
                     binarySearchTree.remove(id, deletionMethod);
                     visualizeTree(scene);
                 }));
-                new ContextMenu(
-                        removeNode
-                ).show(circle,e.getScreenX(),e.getSceneY());
+
+                // Show the context menu
+                contextMenu.show(circle, e.getScreenX(), e.getScreenY());
             }
         });
 
