@@ -2,6 +2,7 @@ package com.example.datastructurevisualiser;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -67,7 +68,13 @@ public class DataStructureVisualiser extends Application {
         });
 
         binarySearchTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root")
-                .ifPresent(root -> primaryStage.setScene(new VisualiseBinarySearchTree(root).createScene(primaryStage))));
+                .ifPresent(root -> {
+                    try {
+                        primaryStage.setScene(new VisualiseBinarySearchTree(Integer.parseInt(root)).createScene(primaryStage));
+                    } catch (NumberFormatException e) {
+                        new Alert(Alert.AlertType.ERROR, "Please enter a integer").show();
+                    }
+                }));
 
         binaryTreeButton.setOnAction(_ -> Utilities.getInputFromUser("Enter root")
                 .ifPresent(root -> primaryStage.setScene(new VisualiseBinaryTree(root).createScene(primaryStage))));

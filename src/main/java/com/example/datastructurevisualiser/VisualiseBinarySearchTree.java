@@ -16,7 +16,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import jdk.jshell.spi.ExecutionControl.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,7 +27,7 @@ import static com.example.datastructurevisualiser.Utilities.*;
 public class VisualiseBinarySearchTree {
     Scene scene;
 
-    private BinarySearchTree<String> binarySearchTree;
+    private BinarySearchTree binarySearchTree;
     private Text traversalResultText = new Text();
     private AnchorPane treePane = new AnchorPane(); // Pane to display the tree structure
 
@@ -36,8 +35,8 @@ public class VisualiseBinarySearchTree {
 
     private final Map<UUID, Circle> nodes = new HashMap<>();
 
-    public VisualiseBinarySearchTree(String root) {
-        binarySearchTree = new BinarySearchTree<>(root);
+    public VisualiseBinarySearchTree(Integer root) {
+        binarySearchTree = new BinarySearchTree(root);
     }
 
     public Scene createScene(Stage primaryStage) {
@@ -81,8 +80,10 @@ public class VisualiseBinarySearchTree {
         // Button actions
         insertButton.setOnAction(e -> Utilities.getInputFromUser("Enter data").ifPresent(data -> {
             try {
-                binarySearchTree.insert(data.trim());
+                binarySearchTree.insert(Integer.parseInt(data.trim()));
                 visualizeTree(scene); // Update tree visualization after insertion
+            } catch (NumberFormatException nfe) {
+                new Alert(Alert.AlertType.ERROR, "Please enter an integer").show();
             } catch (IllegalArgumentException iae) {
                 alertError(iae);
             }
@@ -93,11 +94,15 @@ public class VisualiseBinarySearchTree {
         postorderButton.setOnAction(_ -> initializeTraversal(Traversable.Traversal.POSTORDER));
 
         searchButton.setOnAction(_ -> getInputFromUser("Enter data to search").ifPresent(data -> {
-            UUID id = binarySearchTree.search(data);
-            if (id == null) {
-                new Alert(Alert.AlertType.INFORMATION, "Not found!", ButtonType.OK).show();
-            } else {
-                nodes.get(id).setStroke(Color.YELLOW);
+            try {
+                UUID id = binarySearchTree.search(Integer.parseInt(data));
+                if (id == null) {
+                    new Alert(Alert.AlertType.INFORMATION, "Not found!", ButtonType.OK).show();
+                } else {
+                    nodes.get(id).setStroke(Color.YELLOW);
+                }
+            } catch (NumberFormatException nfe) {
+                new Alert(Alert.AlertType.ERROR, "Please enter an integer value").show();
             }
         }));
 
@@ -141,10 +146,10 @@ public class VisualiseBinarySearchTree {
         nodes.values().forEach(circle -> circle.setStroke(Color.web("#3B1E54")));
         traverseNextButton.setDisable(false);
         traversalResultText.setText(traversal.name() + ':');
-        Iterator<BaseTree.Node<String>> i = binarySearchTree.iterator(traversal);
+        Iterator<BaseTree.Node<Integer>> i = binarySearchTree.iterator(traversal);
         traverseNextButton.setOnAction(_ -> {
             if (i.hasNext()) {
-                BaseTree.Node<String> node = i.next();
+                BaseTree.Node<Integer> node = i.next();
                 traversalResultText.setText(traversalResultText.getText() + " " + node.getData());
                 nodes.forEach((id, circle) -> {
                     if (id.equals(node.getId())) {
@@ -178,7 +183,7 @@ public class VisualiseBinarySearchTree {
     }
 
     // Recursive method to display the binary tree with accurate positioning and lines
-    private void displayTree(BaseTree.Node<String> node, double x, double y, double offset, UUID id) {
+    private void displayTree(BaseTree.Node<Integer> node, double x, double y, double offset, UUID id) {
         if (node == null) return;
 
         // Create a Circle and Text for the current node

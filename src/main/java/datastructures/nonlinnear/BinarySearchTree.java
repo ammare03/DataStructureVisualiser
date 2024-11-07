@@ -1,22 +1,21 @@
 package datastructures.nonlinnear;
 
-import jdk.jshell.spi.ExecutionControl.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class BinarySearchTree<T extends Comparable<T>> extends BaseTree<T> {
-    public BinarySearchTree(T root) {
+public class BinarySearchTree extends BaseTree<Integer> {
+    public BinarySearchTree(Integer root) {
         super(root);
     }
 
     @Nullable
-    public UUID search(T data) {
+    public UUID search(Integer data) {
         return searchHelper(data, root);
     }
 
-    private UUID searchHelper(T data, Node<T> root) {
+    private UUID searchHelper(Integer data, Node<Integer> root) {
         if (root == null) {
             return null;
         }
@@ -29,11 +28,11 @@ public class BinarySearchTree<T extends Comparable<T>> extends BaseTree<T> {
         }
     }
 
-    public UUID insert(T data) {
+    public UUID insert(Integer data) {
         return insertHelper(data, root);
     }
 
-    private UUID insertHelper(T data, Node<T> root) {
+    private UUID insertHelper(Integer data, Node<Integer> root) {
         if (data.compareTo(root.data) < 0) {
             if (root.left != null) {
                 return insertHelper(data, root.left);
@@ -58,8 +57,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends BaseTree<T> {
     }
 
     public void remove(UUID id, Deletion method) {
-        NodeParent<T> nodeParent = getNodeParent(id);
-        Node<T> node = nodeParent.getChild();
+        NodeParent<Integer> nodeParent = getNodeParent(id);
+        Node<Integer> node = nodeParent.getChild();
         if (node.left == null && node.right == null) {
             switch (nodeParent.childPosition) {
                 case SELF -> throw new IllegalArgumentException("Cannot remove root!");
@@ -84,7 +83,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends BaseTree<T> {
         }
         switch (method) {
             case PREDECESSOR -> {
-                Node<T> predecessorParent = node.left;
+                Node<Integer> predecessorParent = node.left;
                 if (predecessorParent.right == null) {
                     node.data = predecessorParent.data;
                     node.left = node.left.left;
@@ -97,7 +96,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends BaseTree<T> {
                 predecessorParent.right = null;
             }
             case SUCCESSOR -> {
-                Node<T> successorParent = node.right;
+                Node<Integer> successorParent = node.right;
                 if (successorParent.left == null) {
                     node.data = successorParent.data;
                     node.right = node.right.right;
@@ -113,11 +112,11 @@ public class BinarySearchTree<T extends Comparable<T>> extends BaseTree<T> {
     }
 
     @NotNull
-    private NodeParent<T> getNodeParent(UUID id) {
+    private NodeParent<Integer> getNodeParent(UUID id) {
         if (id.equals(root.id)) {
             return new NodeParent<>(root, NodeParent.ChildPosition.SELF);
         }
-        NodeParent<T> result = getNodeParentHelper(root, id);
+        NodeParent<Integer> result = getNodeParentHelper(root, id);
         if (result == null) {
             throw new IllegalArgumentException("No node found with given id!");
         }
@@ -125,14 +124,14 @@ public class BinarySearchTree<T extends Comparable<T>> extends BaseTree<T> {
     }
 
     @Nullable
-    private NodeParent<T> getNodeParentHelper(Node<T> root, UUID id) {
+    private NodeParent<Integer> getNodeParentHelper(Node<Integer> root, UUID id) {
         if (root.left != null && id.equals(root.left.id)) {
             return new NodeParent<>(root, NodeParent.ChildPosition.LEFT);
         } else if (root.right != null && id.equals(root.right.id)) {
             return new NodeParent<>(root, NodeParent.ChildPosition.RIGHT);
         }
         if (root.left != null) {
-            NodeParent<T> nodeParent = getNodeParentHelper(root.left, id);
+            NodeParent<Integer> nodeParent = getNodeParentHelper(root.left, id);
             if (nodeParent == null && root.right != null) {
                 return getNodeParentHelper(root.right, id);
             }
