@@ -106,6 +106,9 @@ public class SinglyLinkedList<T> extends LinkedList<T> {
             }
             iterator = iterator.next;
         }
+        if (iterator.next == null) {
+            throw new UnderflowException("Cannot remove the only node!");
+        }
         iterator.next = iterator.next.next;
     }
 
