@@ -276,10 +276,20 @@ public class VisualiseBinaryTree {
         text.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         text.setFill(Color.web("#3B1E54"));
 
+        // Create Label for node ID or any other information
+        Label nodeLabel = new Label(String.valueOf(node.hashCode()));
+        nodeLabel.setTextFill(Color.web("#EEEEEE"));
+        nodeLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 10));
 
         StackPane nodePane = new StackPane(circle, text, nodeLabel);
         nodePane.setLayoutX(x - 20); // Position StackPane center at (x, y)
         nodePane.setLayoutY(y - 20);
+
+        Tooltip.install(nodePane, new Tooltip(getState(node)));
+
+        // Position the label below the circle
+        nodeLabel.setTranslateY(-30); // Adjusts the label position below the node
+
         treePane.getChildren().add(nodePane); // Add node to the treePane
 
         // Calculate child node positions and adjust line length
