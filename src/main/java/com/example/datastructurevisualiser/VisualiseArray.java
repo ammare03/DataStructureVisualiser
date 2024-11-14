@@ -26,7 +26,7 @@ public class VisualiseArray {
 
     public Scene createScene(Stage primaryStage) {
         // Create the title text
-        Text title = new Text("Visualise Arrays");
+        Text title = new Text("Arrays");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));  // Title font settings
         title.setFill(Color.web("#EEEEEE"));  // Title text color
 

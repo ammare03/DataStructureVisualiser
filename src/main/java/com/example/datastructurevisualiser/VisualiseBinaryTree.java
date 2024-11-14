@@ -281,7 +281,7 @@ public class VisualiseBinaryTree {
         nodeLabel.setTextFill(Color.web("#EEEEEE"));
         nodeLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 10));
 
-        StackPane nodePane = new StackPane(circle, text);
+        StackPane nodePane = new StackPane(circle, text, nodeLabel);
         nodePane.setLayoutX(x - 20); // Position StackPane center at (x, y)
         nodePane.setLayoutY(y - 20);
 

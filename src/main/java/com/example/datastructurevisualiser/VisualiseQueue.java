@@ -45,7 +45,7 @@ public class VisualiseQueue {
 
     public Scene createScene(Stage primaryStage) {
         // Create the title text
-        Text title = new Text("Visualise Queue");
+        Text title = new Text("Queue");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
         title.setFill(Color.web("#EEEEEE"));
 
